@@ -55,8 +55,8 @@
   .brand-name { font-size: 16px; font-weight: 600; }
 
   .nav-actions { display: flex; align-items: center; gap: 10px; }
-  .user-badge { display: none; align-items: center; gap: 6px; padding: 4px 10px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 999px; font-size: 12px; color: var(--text-secondary); }
-  .user-dot { width: 6px; height: 6px; background: var(--success-color); border-radius: 50%; }
+  .profile-btn { display: none; align-items: center; gap: 8px; padding: 6px 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text-primary); cursor: pointer; transition: var(--transition); }
+  .profile-btn:hover { opacity: 0.85; }
 
   .btn { border: none; cursor: pointer; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 999px; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
   .btn-primary { background: var(--accent-primary); color: #FFF; }
@@ -116,6 +116,9 @@
   .auth-tab.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
   .error-msg { color: #FF3B30; font-size: 12px; margin-bottom: 12px; display: none; }
 
+  .checkout-option { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); margin-bottom: 8px; }
+  .checkout-option.disabled { opacity: 0.4; pointer-events: none; }
+
   footer { border-top: 1px solid var(--border-subtle); padding: 24px; text-align: center; color: var(--text-muted); font-size: 12px; background: var(--bg-surface); }
   .footer-links { margin-top: 8px; display: flex; gap: 16px; justify-content: center; }
   .footer-links button { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; text-decoration: underline; }
@@ -134,12 +137,10 @@
       <div class="brand-name">Blackbox Store</div>
     </a>
     <div class="nav-actions">
-      <div id="userBadge" class="user-badge">
-        <span class="user-dot"></span>
-        <span id="userNameDisplay"></span>
-      </div>
+      <button id="profileBtn" class="profile-btn" style="display: none;">
+        <span id="profileNameDisplay"></span>
+      </button>
       <button id="openAuthBtn" class="btn btn-secondary">Anmelden</button>
-      <button id="logoutBtn" class="btn btn-ghost" style="display: none;">Abmelden</button>
     </div>
   </div>
 </header>
@@ -202,15 +203,30 @@
   </div>
 </div>
 
-<!-- LOGOUT MODAL -->
-<div id="logoutModal" class="modal-backdrop">
-  <div class="modal" style="max-width: 360px; text-align: center;">
-    <h2 style="font-size: 18px; margin-bottom: 10px;">Abmelden?</h2>
-    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Möchtest du dich wirklich von deinem Account abmelden?</p>
-    <div style="display: flex; gap: 10px;">
-      <button class="btn btn-secondary" style="flex: 1;" data-close="logoutModal">Abbrechen</button>
-      <button id="confirmLogoutBtn" class="btn btn-primary" style="flex: 1; background: #FF3B30;">Abmelden</button>
+<!-- PROFILE MODAL -->
+<div id="profileModal" class="modal-backdrop">
+  <div class="modal" style="max-width: 400px;">
+    <div class="modal-header">
+      <h2>Benutzerprofil</h2>
+      <button class="close-modal" data-close="profileModal">&times;</button>
     </div>
+    <div style="font-size: 14px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+      <div><strong>Name:</strong> <span id="modalProfileName"></span></div>
+      <div><strong>E-Mail:</strong> <span id="modalProfileEmail"></span></div>
+      <div><strong>Guthaben:</strong> <span id="modalProfileBalance" style="color: var(--success-color); font-weight: 600;">0,00 €</span></div>
+      <div><strong>Beigetreten am:</strong> <span id="modalProfileJoined"></span></div>
+    </div>
+
+    <div style="border-top: 1px solid var(--border-subtle); padding-top: 16px; margin-bottom: 20px;">
+      <h3 style="font-size: 14px; margin-bottom: 8px;">Gutscheincode einlösen</h3>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="voucherInput" placeholder="z.B. A1B2C" style="flex:1; background: var(--bg-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 8px; font-size: 13px; color: var(--text-primary); text-transform: uppercase;">
+        <button id="redeemBtn" class="btn btn-primary">Einlösen</button>
+      </div>
+      <div id="voucherError" class="error-msg" style="margin-top: 6px;"></div>
+    </div>
+
+    <button id="confirmLogoutBtn" class="btn btn-secondary" style="width: 100%; background: rgba(255,59,48,0.1); color: #FF3B30; border: none;">Abmelden</button>
   </div>
 </div>
 
@@ -228,7 +244,20 @@
           </div>
           <button class="close-modal" data-close="previewModal">&times;</button>
         </div>
-        <p id="previewDesc" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; max-height: 160px; overflow-y: auto;"></p>
+        <p id="previewDesc" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; max-height: 140px; overflow-y: auto;"></p>
+        
+        <div style="margin-bottom: 16px;">
+          <div style="font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px;">Zahlungsmethode wählen:</div>
+          <div class="checkout-option disabled">
+            <span>PayPal (In Kürze verfügbar)</span>
+          </div>
+          <div class="checkout-option disabled">
+            <span>PayPal Bank / Überweisung (In Kürze)</span>
+          </div>
+          <div class="checkout-option" style="border-color: var(--accent-primary);">
+            <span>Gutscheincode (Aktiv)</span>
+          </div>
+        </div>
       </div>
       <div id="previewActionContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
     </div>
@@ -249,7 +278,6 @@
         Deine Anschrift (Straße, PLZ, Ort)<br>
         Privates Non-Profit-Projekt / Mikroverlag
       </p>
-      
       <h3 style="font-size: 14px; color: var(--text-primary); margin-top: 12px; margin-bottom: 4px;">Kontakt</h3>
       <p>E-Mail: deine-e-mail@domain.de</p>
     </div>
@@ -266,12 +294,8 @@
     <div style="font-size: 13px; color: var(--text-secondary);">
       <h3 style="font-size: 14px; color: var(--text-primary); margin-top: 12px; margin-bottom: 4px;">1. Datenschutz auf einen Blick</h3>
       <p style="margin-bottom: 10px;">Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen.</p>
-      
       <h3 style="font-size: 14px; color: var(--text-primary); margin-top: 12px; margin-bottom: 4px;">2. Hosting & Registrierung</h3>
-      <p style="margin-bottom: 10px;">Bei der Registrierung speichern wir Ihre E-Mail, den Anzeigenamen, Käufe sowie den Lesefortschritt, um Ihnen die geräteübergreifende Nutzung zu ermöglichen.</p>
-      
-      <h3 style="font-size: 14px; color: var(--text-primary); margin-top: 12px; margin-bottom: 4px;">3. Ihre Rechte</h3>
-      <p>Sie haben jederzeit das Recht auf Auskunft, Berichtigung oder Löschung Ihrer gespeicherten Daten.</p>
+      <p>Bei der Registrierung speichern wir Ihre E-Mail, den Anzeigenamen, Käufe, Guthaben sowie den Lesefortschritt.</p>
     </div>
   </div>
 </div>
@@ -280,7 +304,7 @@
 
 <script>
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPdz3c08RBaXkqE-pYi5p-OpVpbiTYPUjxCW2-CaKXMNWpJiNY-YKoJevvFWjQzgCWxg/exec";
-  const SESSION_KEY = 'bb_drive_session_v1';
+  const SESSION_KEY = 'bb_drive_session_v2';
 
   let books = [
     {
@@ -300,11 +324,10 @@
 
   const bookGrid = document.getElementById('bookGrid');
   const openAuthBtn = document.getElementById('openAuthBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const userBadge = document.getElementById('userBadge');
-  const userNameDisplay = document.getElementById('userNameDisplay');
+  const profileBtn = document.getElementById('profileBtn');
+  const profileNameDisplay = document.getElementById('profileNameDisplay');
   const authModal = document.getElementById('authModal');
-  const logoutModal = document.getElementById('logoutModal');
+  const profileModal = document.getElementById('profileModal');
   const previewModal = document.getElementById('previewModal');
   const impressumModal = document.getElementById('impressumModal');
   const datenschutzModal = document.getElementById('datenschutzModal');
@@ -330,29 +353,25 @@
 
   async function callDriveBackend(payload) {
     try {
-      await fetch(GOOGLE_SCRIPT_URL, {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
-      return { success: true };
+      return await response.json();
     } catch (err) {
       console.error(err);
-      return { success: false, error: "Netzwerkfehler" };
+      return { success: false, error: "Netzwerkfehler zur Google-Tabelle." };
     }
   }
 
   function updateAuthUI() {
     if (currentUser) {
       openAuthBtn.style.display = 'none';
-      logoutBtn.style.display = 'inline-flex';
-      userBadge.style.display = 'inline-flex';
-      userNameDisplay.textContent = currentUser.name || currentUser.email.split('@')[0];
+      profileBtn.style.display = 'inline-flex';
+      profileNameDisplay.textContent = currentUser.name || currentUser.email.split('@')[0];
     } else {
       openAuthBtn.style.display = 'inline-flex';
-      logoutBtn.style.display = 'none';
-      userBadge.style.display = 'none';
+      profileBtn.style.display = 'none';
     }
     renderBooks();
   }
@@ -409,7 +428,7 @@
       const buyBtn = document.createElement('button');
       buyBtn.className = 'btn btn-success';
       buyBtn.style.width = '100%';
-      buyBtn.textContent = 'Kaufen für 0,00 €';
+      buyBtn.textContent = 'Kaufen für 0,00 € (Mit Gutschein)';
       buyBtn.onclick = async () => {
         if (!currentUser) {
           closeModal(previewModal);
@@ -417,14 +436,16 @@
           showToast('Bitte melde dich kurz an, um das Buch zu sichern.');
           return;
         }
-        currentUser.purchases.push(book.id);
+        if (!currentUser.purchases.includes(book.id)) {
+          currentUser.purchases.push(book.id);
+        }
         localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
         await callDriveBackend({
           action: 'sync',
           email: currentUser.email,
           purchases: currentUser.purchases
         });
-        showToast('Buch für 0,00 € gekauft!');
+        showToast('Buch erfolgreich erworben!');
         openPreview(book);
         renderBooks();
       };
@@ -443,7 +464,7 @@
       disabledBuyBtn.style.width = '100%';
       disabledBuyBtn.style.opacity = '0.6';
       disabledBuyBtn.style.cursor = 'default';
-      disabledBuyBtn.textContent = 'Gekauft (0,00 €)';
+      disabledBuyBtn.textContent = 'Bereits im Besitz';
       previewActionContainer.appendChild(disabledBuyBtn);
     }
 
@@ -462,6 +483,55 @@
 
   document.getElementById('openImpressumBtn').onclick = () => openModal(impressumModal);
   document.getElementById('openDatenschutzBtn').onclick = () => openModal(datenschutzModal);
+
+  openAuthBtn.onclick = () => { authError.style.display = 'none'; openModal(authModal); };
+  profileBtn.onclick = () => {
+    document.getElementById('modalProfileName').textContent = currentUser.name;
+    document.getElementById('modalProfileEmail').textContent = currentUser.email;
+    document.getElementById('modalProfileBalance').textContent = (currentUser.balance || 0).toFixed(2) + ' €';
+    document.getElementById('modalProfileJoined').textContent = currentUser.joined || 'Unbekannt';
+    document.getElementById('voucherError').style.display = 'none';
+    document.getElementById('voucherInput').value = '';
+    openModal(profileModal);
+  };
+
+  document.getElementById('confirmLogoutBtn').onclick = () => {
+    currentUser = null;
+    localStorage.removeItem(SESSION_KEY);
+    closeModal(profileModal);
+    updateAuthUI();
+    showToast('Erfolgreich abgemeldet.');
+  };
+
+  document.getElementById('redeemBtn').onclick = async () => {
+    const code = document.getElementById('voucherInput').value.trim();
+    const voucherError = document.getElementById('voucherError');
+    voucherError.style.display = 'none';
+
+    if (!code) {
+      voucherError.textContent = 'Bitte gib einen Code ein.';
+      voucherError.style.display = 'block';
+      return;
+    }
+
+    const res = await callDriveBackend({
+      action: 'redeemCode',
+      email: currentUser.email,
+      code: code
+    });
+
+    if (!res.success) {
+      voucherError.textContent = res.error || 'Fehler beim Einlösen.';
+      voucherError.style.display = 'block';
+      return;
+    }
+
+    currentUser.balance = res.balance;
+    localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+    document.getElementById('modalProfileBalance').textContent = currentUser.balance.toFixed(2) + ' €';
+    showToast(`Erfolgreich! ${res.added} € Guthaben gutgeschrieben.`);
+    document.getElementById('voucherInput').value = '';
+  };
 
   document.querySelectorAll('.auth-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -488,57 +558,73 @@
     const email = document.getElementById('authEmail').value.trim();
     const password = document.getElementById('authPassword').value;
     authError.style.display = 'none';
+    authSubmitBtn.disabled = true;
+    const originalText = authSubmitBtn.textContent;
+    authSubmitBtn.textContent = 'Verarbeite...';
 
-    if (authMode === 'register') {
-      const name = document.getElementById('authName').value.trim() || email.split('@')[0];
-      const passwordConfirm = document.getElementById('authPasswordConfirm').value;
+    try {
+      if (authMode === 'register') {
+        const name = document.getElementById('authName').value.trim() || email.split('@')[0];
+        const passwordConfirm = document.getElementById('authPasswordConfirm').value;
 
-      if (password !== passwordConfirm) {
-        authError.textContent = 'Die Passwörter stimmen nicht überein.';
-        authError.style.display = 'block';
-        return;
+        if (password !== passwordConfirm) {
+          authError.textContent = 'Die Passwörter stimmen nicht überein.';
+          authError.style.display = 'block';
+          authSubmitBtn.disabled = false;
+          authSubmitBtn.textContent = originalText;
+          return;
+        }
+
+        const res = await callDriveBackend({
+          action: 'register',
+          email: email,
+          password: password,
+          name: name
+        });
+
+        if (!res.success) {
+          authError.textContent = res.error || 'Registrierung fehlgeschlagen.';
+          authError.style.display = 'block';
+          authSubmitBtn.disabled = false;
+          authSubmitBtn.textContent = originalText;
+          return;
+        }
+
+        currentUser = res.user;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        closeModal(authModal);
+        authForm.reset();
+        updateAuthUI();
+        showToast(`Willkommen, ${name}!`);
+      } else {
+        const res = await callDriveBackend({
+          action: 'login',
+          email: email,
+          password: password
+        });
+
+        if (!res.success) {
+          authError.textContent = res.error || 'Anmeldung fehlgeschlagen.';
+          authError.style.display = 'block';
+          authSubmitBtn.disabled = false;
+          authSubmitBtn.textContent = originalText;
+          return;
+        }
+
+        currentUser = res.user;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        closeModal(authModal);
+        authForm.reset();
+        updateAuthUI();
+        showToast(`Willkommen zurück, ${currentUser.name}!`);
       }
-
-      currentUser = { email: email, name: name, purchases: [], progress: {} };
-      localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
-
-      await callDriveBackend({
-        action: 'register',
-        email: email,
-        password: password,
-        name: name
-      });
-
-      closeModal(authModal);
-      authForm.reset();
-      updateAuthUI();
-      showToast(`Willkommen, ${name}! Du bist jetzt eingeloggt.`);
-    } else {
-      currentUser = { email: email, name: email.split('@')[0], purchases: [], progress: {} };
-      localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
-
-      await callDriveBackend({
-        action: 'login',
-        email: email,
-        password: password
-      });
-
-      closeModal(authModal);
-      authForm.reset();
-      updateAuthUI();
-      showToast('Erfolgreich angemeldet.');
+    } catch (err) {
+      authError.textContent = 'Verbindungsfehler zur Google-Tabelle.';
+      authError.style.display = 'block';
+    } finally {
+      authSubmitBtn.disabled = false;
+      authSubmitBtn.textContent = originalText;
     }
-  });
-
-  openAuthBtn.addEventListener('click', () => { authError.style.display = 'none'; openModal(authModal); });
-  logoutBtn.addEventListener('click', () => openModal(logoutModal));
-
-  document.getElementById('confirmLogoutBtn').addEventListener('click', () => {
-    currentUser = null;
-    localStorage.removeItem(SESSION_KEY);
-    closeModal(logoutModal);
-    updateAuthUI();
-    showToast('Erfolgreich abgemeldet.');
   });
 
   updateAuthUI();
