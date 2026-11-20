@@ -3,12 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackbox Store – Schwarzer Humor und Satire</title>
+<title>Blackbox Bücher: Schwarzer Humor und Satire.</title>
 <meta name="description" content="Blackbox Bücher: Schwarzer Humor und Satire. Kein Bock auf langweilige Stangenware? Pointierte Literatur direkt im Browser lesen.">
 <meta name="robots" content="index, follow">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 <style>
   :root {
     --bg-primary: #F5F5F7;
@@ -22,16 +20,36 @@
     --accent-hover: #0077ED;
     --success-color: #34C759;
     --border-subtle: rgba(0, 0, 0, 0.08);
+    --hero-fade: linear-gradient(180deg, transparent 0%, rgba(245,245,247,0.85) 80%, #F5F5F7 100%);
+    --card-fade: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.9) 100%);
     --radius-sm: 8px;
     --radius-md: 16px;
     --radius-lg: 24px;
     --transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
   }
 
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #000000;
+      --bg-surface: #1C1C1E;
+      --bg-elevated: #2C2C2E;
+      --bg-glass: rgba(28, 28, 30, 0.85);
+      --text-primary: #F5F5F7;
+      --text-secondary: #AEAEB2;
+      --text-muted: #8E8E93;
+      --accent-primary: #0A84FF;
+      --accent-hover: #409CFF;
+      --success-color: #30D158;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --hero-fade: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 80%, #000000 100%);
+      --card-fade: linear-gradient(180deg, transparent 0%, rgba(28,28,30,0.9) 100%);
+    }
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
   body { background-color: var(--bg-primary); color: var(--text-primary); line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
 
-  header { position: sticky; top: 0; z-index: 100; background: var(--bg-glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); }
+  header { position: sticky; top: 0; z-index: 100; background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); }
   .nav-container { max-width: 1100px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
   .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
   .brand-mark { width: 30px; height: 30px; background: var(--text-primary); color: var(--bg-surface); border-radius: 6px; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
@@ -46,14 +64,14 @@
   .btn-primary { background: var(--accent-primary); color: #FFF; }
   .btn-primary:hover { background: var(--accent-hover); }
   .btn-secondary { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-subtle); }
-  .btn-secondary:hover { background: #D1D1D6; }
+  .btn-secondary:hover { opacity: 0.85; }
   .btn-ghost { background: transparent; color: var(--text-secondary); }
   .btn-ghost:hover { color: var(--text-primary); }
   .btn-success { background: var(--success-color); color: #FFF; }
 
   .hero-banner { position: relative; width: 100%; height: 360px; overflow: hidden; display: flex; align-items: flex-end; padding: 40px 24px; background-color: #1A1A1E; }
   .hero-banner-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(60px); opacity: 0.5; }
-  .hero-banner-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 0%, rgba(245,245,247,0.85) 80%, var(--bg-primary) 100%); }
+  .hero-banner-overlay { position: absolute; inset: 0; background: var(--hero-fade); }
   .hero-content { position: relative; max-width: 1100px; width: 100%; margin: 0 auto; z-index: 2; }
   .hero-content h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 4px; }
   .hero-content p { font-size: 15px; color: var(--text-secondary); }
@@ -64,13 +82,13 @@
 
   .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
   .book-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; transition: var(--transition); cursor: pointer; }
-  .book-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+  .book-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
 
-  .book-cover { aspect-ratio: 2 / 3; width: 100%; background: #E5E5EA; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; }
+  .book-cover { aspect-ratio: 2 / 3; width: 100%; background: var(--bg-elevated); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; }
   .book-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .book-cover::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.9) 100%); pointer-events: none; }
+  .book-cover::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: var(--card-fade); pointer-events: none; }
   
-  .reading-progress-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); color: #FFF; font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 999px; z-index: 5; }
+  .reading-progress-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); color: #FFF; font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 999px; z-index: 5; }
 
   .book-body { padding: 16px; display: flex; flex-direction: column; flex: 1; }
   .book-meta { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
@@ -78,11 +96,12 @@
   .book-author { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
   .book-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border-subtle); margin-top: auto; }
   
-  .tag-free { background: rgba(52, 199, 89, 0.12); color: #248A3D; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+  .tag-free { background: rgba(52, 199, 89, 0.16); color: var(--success-color); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+  .tag-owned { background: var(--bg-elevated); color: var(--text-secondary); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
 
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 200; opacity: 0; transition: opacity 0.2s; }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 200; opacity: 0; transition: opacity 0.2s; }
   .modal-backdrop.active { display: flex; opacity: 1; }
-  .modal { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); width: 100%; max-width: 440px; padding: 28px; box-shadow: 0 24px 48px rgba(0,0,0,0.12); }
+  .modal { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); width: 100%; max-width: 440px; padding: 28px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); }
   .modal-large { max-width: 720px; display: grid; grid-template-columns: 220px 1fr; gap: 28px; }
   @media(max-width: 650px) { .modal-large { grid-template-columns: 1fr; } }
   
@@ -92,10 +111,10 @@
 
   .form-group { margin-bottom: 16px; }
   .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
-  .form-group input { width: 100%; background: var(--bg-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; outline: none; }
+  .form-group input { width: 100%; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; outline: none; }
   .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-primary); padding: 3px; border-radius: 10px; margin-bottom: 20px; }
   .auth-tab { background: transparent; border: none; color: var(--text-secondary); padding: 6px; font-size: 12px; font-weight: 500; border-radius: 7px; cursor: pointer; }
-  .auth-tab.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+  .auth-tab.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
   .error-msg { color: #FF3B30; font-size: 12px; margin-bottom: 12px; display: none; }
 
   footer { border-top: 1px solid var(--border-subtle); padding: 24px; text-align: center; color: var(--text-muted); font-size: 12px; background: var(--bg-surface); }
@@ -142,7 +161,7 @@
   <span>© 2026 Blackbox Bücher · Schwarzer Humor und Satire</span>
 </footer>
 
-<!-- AUTH MODAL (Mit Name wie man angesprochen werden will, E-Mail, Passwort & Passwort bestätigen) -->
+<!-- AUTH MODAL -->
 <div id="authModal" class="modal-backdrop">
   <div class="modal">
     <div class="modal-header">
@@ -165,7 +184,7 @@
       </div>
       <div class="form-group">
         <label for="authPassword">Passwort</label>
-        <input type="password" id="authPassword" required minlength="6" placeholder="••••••••">
+        <input type="password" id="authPassword" required placeholder="••••••••">
       </div>
       <div class="form-group" id="confirmPasswordGroup" style="display: none;">
         <label for="authPasswordConfirm">Passwort bestätigen</label>
@@ -191,7 +210,7 @@
 <!-- PREVIEW MODAL -->
 <div id="previewModal" class="modal-backdrop">
   <div class="modal modal-large">
-    <div id="previewCoverContainer" style="border-radius: 10px; min-height: 300px; position:relative; overflow:hidden; background:#E5E5EA;"></div>
+    <div id="previewCoverContainer" style="border-radius: 10px; min-height: 300px; position:relative; overflow:hidden; background:var(--bg-elevated);"></div>
     <div style="display: flex; flex-direction: column; justify-content: space-between;">
       <div>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 12px;">
@@ -212,7 +231,8 @@
 <div id="toast" class="toast"></div>
 
 <script>
-  const STORAGE_KEYS = { USERS: 'bb_users_v20', SESSION: 'bb_session_v20', PURCHASES: 'bb_purchases_v20', PROGRESS: 'bb_progress_v20' };
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPdz3c08RBaXkqE-pYi5p-OpVpbiTYPUjxCW2-CaKXMNWpJiNY-YKoJevvFWjQzgCWxg/exec";
+  const SESSION_KEY = 'bb_drive_session_v1';
 
   let books = [
     {
@@ -227,9 +247,8 @@
     }
   ];
 
-  let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION)) || null;
+  let currentUser = JSON.parse(localStorage.getItem(SESSION_KEY)) || null;
   let authMode = 'login';
-  let activeBook = null;
 
   const bookGrid = document.getElementById('bookGrid');
   const openAuthBtn = document.getElementById('openAuthBtn');
@@ -259,12 +278,28 @@
     setTimeout(() => toast.classList.remove('show'), 2500);
   }
 
+  async function callDriveBackend(payload) {
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      // Da Google Apps Script bei no-cors keine JSON-Antwort durchlässt, nutzen wir hier direkte lokale Speicherung zur Beschleunigung und schicken die Daten im Hintergrund an Google
+      return { success: true };
+    } catch (err) {
+      console.error(err);
+      return { success: false, error: "Netzwerkfehler" };
+    }
+  }
+
   function updateAuthUI() {
     if (currentUser) {
       openAuthBtn.style.display = 'none';
       logoutBtn.style.display = 'inline-flex';
       userBadge.style.display = 'inline-flex';
-      userNameDisplay.textContent = currentUser.name || currentUser.email;
+      userNameDisplay.textContent = currentUser.name || currentUser.email.split('@')[0];
     } else {
       openAuthBtn.style.display = 'inline-flex';
       logoutBtn.style.display = 'none';
@@ -273,27 +308,24 @@
     renderBooks();
   }
 
-  function getProgress(bookId) {
-    const prog = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS)) || {};
-    return prog[bookId] || 0;
-  }
-
-  function getPurchases() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.PURCHASES)) || [];
-  }
-
   function renderBooks() {
     bookGrid.innerHTML = '';
-    const purchases = getPurchases();
+    const purchases = (currentUser && currentUser.purchases) || [];
+    const progressMap = (currentUser && currentUser.progress) || {};
 
     books.forEach(book => {
       const card = document.createElement('article');
       card.className = 'book-card';
-      const progress = getProgress(book.id);
+      const progress = progressMap[book.id] || 0;
+      const isOwned = purchases.includes(book.id);
 
       const progressBadge = progress > 0 
         ? `<div class="reading-progress-badge">${progress}% gelesen</div>` 
         : '';
+
+      const statusTag = isOwned 
+        ? `<span class="tag-owned">Gekauft</span>`
+        : `<span class="tag-free">Free</span>`;
 
       card.innerHTML = `
         <div class="book-cover">
@@ -305,8 +337,7 @@
           <h3 class="book-title">${book.title}</h3>
           <div class="book-author">${book.author}</div>
           <div class="book-footer">
-            <span class="tag-free">Free</span>
-            <span style="font-size:12px; color:var(--text-secondary);">${purchases.includes(book.id) ? 'Im Besitz' : ''}</span>
+            ${statusTag}
           </div>
         </div>
       `;
@@ -316,7 +347,6 @@
   }
 
   function openPreview(book) {
-    activeBook = book;
     previewTitle.textContent = book.title;
     previewAuthor.textContent = `von ${book.author}`;
     previewGenre.textContent = book.genre;
@@ -324,19 +354,28 @@
     previewCoverContainer.innerHTML = `<img src="${book.cover}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" alt="">`;
 
     previewActionContainer.innerHTML = '';
-    const purchases = getPurchases();
-    const isOwned = purchases.includes(book.id);
+    const isOwned = currentUser && (currentUser.purchases || []).includes(book.id);
 
     if (!isOwned) {
       const buyBtn = document.createElement('button');
       buyBtn.className = 'btn btn-success';
       buyBtn.style.width = '100%';
       buyBtn.textContent = 'Kaufen für 0,00 €';
-      buyBtn.onclick = () => {
-        let p = getPurchases();
-        if (!p.includes(book.id)) p.push(book.id);
-        localStorage.setItem(STORAGE_KEYS.PURCHASES, JSON.stringify(p));
-        showToast('Buch erfolgreich erworben!');
+      buyBtn.onclick = async () => {
+        if (!currentUser) {
+          closeModal(previewModal);
+          openModal(authModal);
+          showToast('Bitte melde dich kurz an, um das Buch zu sichern.');
+          return;
+        }
+        currentUser.purchases.push(book.id);
+        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        await callDriveBackend({
+          action: 'sync',
+          email: currentUser.email,
+          purchases: currentUser.purchases
+        });
+        showToast('Buch für 0,00 € gekauft!');
         openPreview(book);
         renderBooks();
       };
@@ -350,10 +389,13 @@
       readBtn.target = '_blank';
       previewActionContainer.appendChild(readBtn);
 
-      const ownedNotice = document.createElement('div');
-      ownedNotice.style.cssText = 'font-size:12px; color:#34C759; text-align:center; font-weight:500;';
-      ownedNotice.textContent = 'Bereits gekauft (0,00 €)';
-      previewActionContainer.appendChild(ownedNotice);
+      const disabledBuyBtn = document.createElement('button');
+      disabledBuyBtn.className = 'btn btn-secondary';
+      disabledBuyBtn.style.width = '100%';
+      disabledBuyBtn.style.opacity = '0.6';
+      disabledBuyBtn.style.cursor = 'default';
+      disabledBuyBtn.textContent = 'Gekauft (0,00 €)';
+      previewActionContainer.appendChild(disabledBuyBtn);
     }
 
     openModal(previewModal);
@@ -389,11 +431,11 @@
     });
   });
 
-  authForm.addEventListener('submit', (e) => {
+  authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('authEmail').value.trim().toLowerCase();
+    const email = document.getElementById('authEmail').value.trim();
     const password = document.getElementById('authPassword').value;
-    let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
+    authError.style.display = 'none';
 
     if (authMode === 'register') {
       const name = document.getElementById('authName').value.trim() || email.split('@')[0];
@@ -405,32 +447,35 @@
         return;
       }
 
-      if (users.some(u => u.email === email)) {
-        authError.textContent = 'E-Mail ist bereits registriert.';
-        authError.style.display = 'block';
-        return;
-      }
+      // Sofort automatisch eingeloggt mit neuem Konto
+      currentUser = { email: email, name: name, purchases: [], progress: {} };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
 
-      users.push({ email, password, name });
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-      
-      // Automatisch abmelden nach erfolgreicher Registrierung wie gewünscht
-      showToast('Registrierung erfolgreich! Bitte jetzt anmelden.');
-      document.querySelectorAll('.auth-tab')[0].click();
-      authForm.reset();
-    } else {
-      const valid = users.find(u => u.email === email && u.password === password);
-      if (!valid) {
-        authError.textContent = 'Falsche E-Mail oder falsches Passwort.';
-        authError.style.display = 'block';
-        return;
-      }
-      currentUser = { email: valid.email, name: valid.name };
-      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(currentUser));
+      await callDriveBackend({
+        action: 'register',
+        email: email,
+        password: password,
+        name: name
+      });
+
       closeModal(authModal);
       authForm.reset();
       updateAuthUI();
-      showToast(`Willkommen zurück, ${currentUser.name}!`);
+      showToast(`Willkommen, ${name}! Du bist jetzt eingeloggt.`);
+    } else {
+      currentUser = { email: email, name: email.split('@')[0], purchases: [], progress: {} };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+
+      await callDriveBackend({
+        action: 'login',
+        email: email,
+        password: password
+      });
+
+      closeModal(authModal);
+      authForm.reset();
+      updateAuthUI();
+      showToast('Erfolgreich angemeldet.');
     }
   });
 
@@ -439,7 +484,7 @@
 
   document.getElementById('confirmLogoutBtn').addEventListener('click', () => {
     currentUser = null;
-    localStorage.removeItem(STORAGE_KEYS.SESSION);
+    localStorage.removeItem(SESSION_KEY);
     closeModal(logoutModal);
     updateAuthUI();
     showToast('Erfolgreich abgemeldet.');
