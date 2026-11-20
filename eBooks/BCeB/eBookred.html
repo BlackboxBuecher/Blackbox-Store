@@ -2,450 +2,294 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackbox Store – Schwarzer Humor und Satire</title>
-<meta name="description" content="Blackbox Bücher: Schwarzer Humor und Satire. Kein Bock auf langweilige Stangenware? Pointierte Literatur direkt im Browser lesen.">
-<meta name="robots" content="index, follow">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Black Comedy – Blackbox Store Reader</title>
+<!-- ePub.js und JSZip -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 <style>
   :root {
-    --bg-primary: #F5F5F7;
-    --bg-surface: #FFFFFF;
-    --bg-elevated: #E5E5EA;
-    --bg-glass: rgba(255, 255, 255, 0.85);
-    --text-primary: #1D1D1F;
-    --text-secondary: #515154;
+    --bg-main: #F5F5F7;
+    --bg-reader: #FFFFFF;
+    --text-main: #1D1D1F;
     --text-muted: #86868B;
-    --accent-primary: #0066CC;
-    --accent-hover: #0077ED;
-    --success-color: #34C759;
-    --border-subtle: rgba(0, 0, 0, 0.08);
-    --radius-sm: 8px;
-    --radius-md: 16px;
-    --radius-lg: 24px;
-    --transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    --btn-bg: rgba(0, 0, 0, 0.05);
+    --btn-hover: rgba(0, 0, 0, 0.1);
+    --border: rgba(0, 0, 0, 0.08);
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
-  body { background-color: var(--bg-primary); color: var(--text-primary); line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-main: #000000;
+      --bg-reader: #1C1C1E;
+      --text-main: #F5F5F7;
+      --text-muted: #8E8E93;
+      --btn-bg: rgba(255, 255, 255, 0.1);
+      --btn-hover: rgba(255, 255, 255, 0.2);
+      --border: rgba(255, 255, 255, 0.1);
+    }
+  }
 
-  header { position: sticky; top: 0; z-index: 100; background: var(--bg-glass); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); }
-  .nav-container { max-width: 1100px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
-  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
-  .brand-mark { width: 30px; height: 30px; background: var(--text-primary); color: var(--bg-surface); border-radius: 6px; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
-  .brand-name { font-size: 16px; font-weight: 600; }
-  .brand-name span { color: var(--text-secondary); font-weight: 400; }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-user-select: none;
+    user-select: none;
+  }
 
-  .nav-actions { display: flex; align-items: center; gap: 10px; }
-  .user-badge { display: none; align-items: center; gap: 6px; padding: 4px 10px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 999px; font-size: 12px; color: var(--text-secondary); }
-  .user-dot { width: 6px; height: 6px; background: var(--success-color); border-radius: 50%; }
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 
-  .btn { border: none; cursor: pointer; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 999px; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
-  .btn-primary { background: var(--accent-primary); color: #FFF; }
-  .btn-primary:hover { background: var(--accent-hover); }
-  .btn-secondary { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-subtle); }
-  .btn-secondary:hover { background: #D1D1D6; }
-  .btn-ghost { background: transparent; color: var(--text-secondary); }
-  .btn-ghost:hover { color: var(--text-primary); }
-  .btn-success { background: var(--success-color); color: #FFF; }
+  /* Dezent gehaltener Apple-Header */
+  header {
+    background: var(--bg-reader);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
 
-  .hero-banner { position: relative; width: 100%; height: 360px; overflow: hidden; display: flex; align-items: flex-end; padding: 40px 24px; background-color: #1A1A1E; }
-  .hero-banner-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(60px); opacity: 0.5; }
-  .hero-banner-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 0%, rgba(245,245,247,0.85) 80%, var(--bg-primary) 100%); }
-  .hero-content { position: relative; max-width: 1100px; width: 100%; margin: 0 auto; z-index: 2; }
-  .hero-content h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 4px; }
-  .hero-content p { font-size: 15px; color: var(--text-secondary); }
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-  main { max-width: 1100px; width: 100%; margin: 0 auto; padding: 36px 24px 80px; flex: 1; }
-  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle); }
-  .section-title { font-size: 18px; font-weight: 600; }
+  .back-btn {
+    background: var(--btn-bg);
+    color: var(--text-main);
+    border: none;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
 
-  .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
-  .book-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; transition: var(--transition); cursor: pointer; }
-  .book-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+  .back-btn:hover {
+    background: var(--btn-hover);
+  }
 
-  .book-cover { aspect-ratio: 2 / 3; width: 100%; background: #E5E5EA; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; }
-  .book-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .book-cover::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.9) 100%); pointer-events: none; }
-  
-  .reading-progress-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); color: #FFF; font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 999px; z-index: 5; }
+  .book-title {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+  }
 
-  .book-body { padding: 16px; display: flex; flex-direction: column; flex: 1; }
-  .book-meta { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-  .book-title { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
-  .book-author { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
-  .book-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border-subtle); margin-top: auto; }
-  
-  .tag-free { background: rgba(52, 199, 89, 0.12); color: #248A3D; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+  .tool-btn {
+    background: var(--btn-bg);
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: background 0.2s;
+  }
 
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 200; opacity: 0; transition: opacity 0.2s; }
-  .modal-backdrop.active { display: flex; opacity: 1; }
-  .modal { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); width: 100%; max-width: 440px; padding: 28px; box-shadow: 0 24px 48px rgba(0,0,0,0.12); }
-  .modal-large { max-width: 720px; display: grid; grid-template-columns: 220px 1fr; gap: 28px; }
-  @media(max-width: 650px) { .modal-large { grid-template-columns: 1fr; } }
-  
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .modal-header h2 { font-size: 20px; font-weight: 600; }
-  .close-modal { background: var(--bg-elevated); border: none; color: var(--text-secondary); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; }
+  .tool-btn:hover {
+    background: var(--btn-hover);
+  }
 
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
-  .form-group input { width: 100%; background: var(--bg-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; outline: none; }
-  .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-primary); padding: 3px; border-radius: 10px; margin-bottom: 20px; }
-  .auth-tab { background: transparent; border: none; color: var(--text-secondary); padding: 6px; font-size: 12px; font-weight: 500; border-radius: 7px; cursor: pointer; }
-  .auth-tab.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-  .error-msg { color: #FF3B30; font-size: 12px; margin-bottom: 12px; display: none; }
+  /* Vollflächiger, randloser Reader-Bereich */
+  main {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: var(--bg-reader);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-  footer { border-top: 1px solid var(--border-subtle); padding: 24px; text-align: center; color: var(--text-muted); font-size: 12px; background: var(--bg-surface); }
-  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--text-primary); color: var(--bg-surface); padding: 10px 16px; border-radius: 999px; font-size: 13px; transform: translateY(80px); opacity: 0; transition: var(--transition); z-index: 300; }
-  .toast.show { transform: translateY(0); opacity: 1; }
+  #viewer {
+    width: 100%;
+    height: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  #loadingScreen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-reader);
+    font-size: 13px;
+    color: var(--text-muted);
+    z-index: 20;
+  }
 </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <header>
-  <div class="nav-container">
-    <a href="#" class="brand">
-      <div class="brand-mark">B</div>
-      <div class="brand-name">Blackbox <span>Bücher</span></div>
-    </a>
-    <div class="nav-actions">
-      <div id="userBadge" class="user-badge">
-        <span class="user-dot"></span>
-        <span id="userNameDisplay"></span>
-      </div>
-      <button id="openAuthBtn" class="btn btn-secondary">Anmelden</button>
-      <button id="logoutBtn" class="btn btn-ghost" style="display: none;">Abmelden</button>
-    </div>
+  <div class="nav-left">
+    <a href="../../index.html" class="back-btn">← Zurück</a>
+    <span class="book-title">Black Comedy – 50 geile Geschichten</span>
+  </div>
+  <div>
+    <button class="tool-btn" id="printBtn" title="Gesamtes Buch drucken">Print</button>
   </div>
 </header>
 
-<div class="hero-banner">
-  <img src="eBooks/BCeB/Black-Comedy-Cover.jpg" alt="" class="hero-banner-bg">
-  <div class="hero-banner-overlay"></div>
-  <div class="hero-content">
-    <h1>Blackbox Bücher: Schwarzer Humor und Satire.</h1>
-    <p>Kein Bock auf langweilige Stangenware? Pointierte Literatur direkt im Browser lesen.</p>
-  </div>
-</div>
-
 <main>
-  <div class="toolbar">
-    <h2 class="section-title">Verlagsprogramm</h2>
-  </div>
-  <div id="bookGrid" class="book-grid"></div>
+  <div id="loadingScreen">Öffne E-Book...</div>
+  <div id="viewer"></div>
 </main>
 
-<footer>
-  <span>© 2026 Blackbox Bücher · Schwarzer Humor und Satire</span>
-</footer>
-
-<!-- AUTH MODAL (Mit Name wie man angesprochen werden will, E-Mail, Passwort & Passwort bestätigen) -->
-<div id="authModal" class="modal-backdrop">
-  <div class="modal">
-    <div class="modal-header">
-      <h2 id="authModalTitle">Anmelden</h2>
-      <button class="close-modal" data-close="authModal">&times;</button>
-    </div>
-    <div class="auth-tabs">
-      <button type="button" class="auth-tab active" data-mode="login">Anmelden</button>
-      <button type="button" class="auth-tab" data-mode="register">Registrieren</button>
-    </div>
-    <form id="authForm">
-      <div id="authError" class="error-msg"></div>
-      <div class="form-group" id="nameGroup" style="display: none;">
-        <label for="authName">Wie willst du genannt werden?</label>
-        <input type="text" id="authName" placeholder="Dein Anzeigename">
-      </div>
-      <div class="form-group">
-        <label for="authEmail">E-Mail-Adresse</label>
-        <input type="email" id="authEmail" required placeholder="name@domain.de">
-      </div>
-      <div class="form-group">
-        <label for="authPassword">Passwort</label>
-        <input type="password" id="authPassword" required minlength="6" placeholder="••••••••">
-      </div>
-      <div class="form-group" id="confirmPasswordGroup" style="display: none;">
-        <label for="authPasswordConfirm">Passwort bestätigen</label>
-        <input type="password" id="authPasswordConfirm" placeholder="••••••••">
-      </div>
-      <button type="submit" id="authSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Anmelden</button>
-    </form>
-  </div>
-</div>
-
-<!-- LOGOUT CONFIRMATION MODAL -->
-<div id="logoutModal" class="modal-backdrop">
-  <div class="modal" style="max-width: 360px; text-align: center;">
-    <h2 style="font-size: 18px; margin-bottom: 10px;">Abmelden?</h2>
-    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Möchtest du dich wirklich von deinem Account abmelden?</p>
-    <div style="display: flex; gap: 10px;">
-      <button class="btn btn-secondary" style="flex: 1;" data-close="logoutModal">Abbrechen</button>
-      <button id="confirmLogoutBtn" class="btn btn-primary" style="flex: 1; background: #FF3B30;">Abmelden</button>
-    </div>
-  </div>
-</div>
-
-<!-- PREVIEW MODAL -->
-<div id="previewModal" class="modal-backdrop">
-  <div class="modal modal-large">
-    <div id="previewCoverContainer" style="border-radius: 10px; min-height: 300px; position:relative; overflow:hidden; background:#E5E5EA;"></div>
-    <div style="display: flex; flex-direction: column; justify-content: space-between;">
-      <div>
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 12px;">
-          <div>
-            <span id="previewGenre" style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase;"></span>
-            <h2 id="previewTitle" style="font-size: 22px; font-weight: 600; margin-top: 2px;"></h2>
-            <div id="previewAuthor" style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;"></div>
-          </div>
-          <button class="close-modal" data-close="previewModal">&times;</button>
-        </div>
-        <p id="previewDesc" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; max-height: 160px; overflow-y: auto;"></p>
-      </div>
-      <div id="previewActionContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
-    </div>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
 <script>
-  const STORAGE_KEYS = { USERS: 'bb_users_v20', SESSION: 'bb_session_v20', PURCHASES: 'bb_purchases_v20', PROGRESS: 'bb_progress_v20' };
+  const epubFileName = 'Black-Comedy-50-geile-Geschichten-Blackbox-Buecher.epub';
+  let currentBook = null;
+  let rendition = null;
 
-  let books = [
-    {
-      id: 'bk-1',
-      title: 'Black Comedy – 50 geile Geschichten',
-      author: 'Matteo Neumann',
-      genre: 'Satire & Schwarzer Humor',
-      price: 0.00,
-      cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
-      readerPage: 'eBooks/BCeB/eBookred.html',
-      description: 'Fünfzig rabenschwarze Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen.'
+  // Tastatursteuerung für Pfeiltasten
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && ['s', 'p', 'c', 'u'].includes(e.key.toLowerCase())) {
+      e.preventDefault();
     }
-  ];
-
-  let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION)) || null;
-  let authMode = 'login';
-  let activeBook = null;
-
-  const bookGrid = document.getElementById('bookGrid');
-  const openAuthBtn = document.getElementById('openAuthBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const userBadge = document.getElementById('userBadge');
-  const userNameDisplay = document.getElementById('userNameDisplay');
-  const authModal = document.getElementById('authModal');
-  const logoutModal = document.getElementById('logoutModal');
-  const previewModal = document.getElementById('previewModal');
-  const authForm = document.getElementById('authForm');
-  const authError = document.getElementById('authError');
-  const authModalTitle = document.getElementById('authModalTitle');
-  const authSubmitBtn = document.getElementById('authSubmitBtn');
-  const nameGroup = document.getElementById('nameGroup');
-  const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
-  const previewCoverContainer = document.getElementById('previewCoverContainer');
-  const previewTitle = document.getElementById('previewTitle');
-  const previewAuthor = document.getElementById('previewAuthor');
-  const previewGenre = document.getElementById('previewGenre');
-  const previewDesc = document.getElementById('previewDesc');
-  const previewActionContainer = document.getElementById('previewActionContainer');
-  const toast = document.getElementById('toast');
-
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  }
-
-  function updateAuthUI() {
-    if (currentUser) {
-      openAuthBtn.style.display = 'none';
-      logoutBtn.style.display = 'inline-flex';
-      userBadge.style.display = 'inline-flex';
-      userNameDisplay.textContent = currentUser.name || currentUser.email;
-    } else {
-      openAuthBtn.style.display = 'inline-flex';
-      logoutBtn.style.display = 'none';
-      userBadge.style.display = 'none';
-    }
-    renderBooks();
-  }
-
-  function getProgress(bookId) {
-    const prog = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS)) || {};
-    return prog[bookId] || 0;
-  }
-
-  function getPurchases() {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.PURCHASES)) || [];
-  }
-
-  function renderBooks() {
-    bookGrid.innerHTML = '';
-    const purchases = getPurchases();
-
-    books.forEach(book => {
-      const card = document.createElement('article');
-      card.className = 'book-card';
-      const progress = getProgress(book.id);
-
-      const progressBadge = progress > 0 
-        ? `<div class="reading-progress-badge">${progress}% gelesen</div>` 
-        : '';
-
-      card.innerHTML = `
-        <div class="book-cover">
-          ${progressBadge}
-          <img src="${book.cover}" alt="${book.title}">
-        </div>
-        <div class="book-body">
-          <div class="book-meta">${book.genre}</div>
-          <h3 class="book-title">${book.title}</h3>
-          <div class="book-author">${book.author}</div>
-          <div class="book-footer">
-            <span class="tag-free">Free</span>
-            <span style="font-size:12px; color:var(--text-secondary);">${purchases.includes(book.id) ? 'Im Besitz' : ''}</span>
-          </div>
-        </div>
-      `;
-      card.onclick = () => openPreview(book);
-      bookGrid.appendChild(card);
-    });
-  }
-
-  function openPreview(book) {
-    activeBook = book;
-    previewTitle.textContent = book.title;
-    previewAuthor.textContent = `von ${book.author}`;
-    previewGenre.textContent = book.genre;
-    previewDesc.textContent = book.description;
-    previewCoverContainer.innerHTML = `<img src="${book.cover}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" alt="">`;
-
-    previewActionContainer.innerHTML = '';
-    const purchases = getPurchases();
-    const isOwned = purchases.includes(book.id);
-
-    if (!isOwned) {
-      const buyBtn = document.createElement('button');
-      buyBtn.className = 'btn btn-success';
-      buyBtn.style.width = '100%';
-      buyBtn.textContent = 'Kaufen für 0,00 €';
-      buyBtn.onclick = () => {
-        let p = getPurchases();
-        if (!p.includes(book.id)) p.push(book.id);
-        localStorage.setItem(STORAGE_KEYS.PURCHASES, JSON.stringify(p));
-        showToast('Buch erfolgreich erworben!');
-        openPreview(book);
-        renderBooks();
-      };
-      previewActionContainer.appendChild(buyBtn);
-    } else {
-      const readBtn = document.createElement('a');
-      readBtn.className = 'btn btn-primary';
-      readBtn.style.width = '100%';
-      readBtn.textContent = '📖 Im Browser lesen';
-      readBtn.href = book.readerPage;
-      readBtn.target = '_blank';
-      previewActionContainer.appendChild(readBtn);
-
-      const ownedNotice = document.createElement('div');
-      ownedNotice.style.cssText = 'font-size:12px; color:#34C759; text-align:center; font-weight:500;';
-      ownedNotice.textContent = 'Bereits gekauft (0,00 €)';
-      previewActionContainer.appendChild(ownedNotice);
-    }
-
-    openModal(previewModal);
-  }
-
-  function openModal(modal) { modal.classList.add('active'); }
-  function closeModal(modal) { modal.classList.remove('active'); }
-
-  document.querySelectorAll('.close-modal, [data-close]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.getAttribute('data-close');
-      if (targetId) closeModal(document.getElementById(targetId));
-    });
+    if (e.key === 'ArrowLeft' && rendition) rendition.prev();
+    if (e.key === 'ArrowRight' && rendition) rendition.next();
   });
 
-  document.querySelectorAll('.auth-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      authMode = tab.getAttribute('data-mode');
-      if (authMode === 'register') {
-        authModalTitle.textContent = 'Registrieren';
-        authSubmitBtn.textContent = 'Registrieren';
-        nameGroup.style.display = 'block';
-        confirmPasswordGroup.style.display = 'block';
-      } else {
-        authModalTitle.textContent = 'Anmelden';
-        authSubmitBtn.textContent = 'Anmelden';
-        nameGroup.style.display = 'none';
-        confirmPasswordGroup.style.display = 'none';
+  async function initReader() {
+    const loadingScreen = document.getElementById('loadingScreen');
+    try {
+      const response = await fetch(epubFileName);
+      if (!response.ok) throw new Error('EPUB nicht gefunden.');
+
+      const buffer = await response.arrayBuffer();
+      currentBook = ePub(buffer);
+
+      // Moderne, flüssige Pagination (wie Google/Apple Books)
+      rendition = currentBook.renderTo("viewer", {
+        width: "100%",
+        height: "100%",
+        spread: "auto",
+        flow: "paginated"
+      });
+
+      // Styling direkt in den EPUB-Container injizieren für perfektes HTML5-Rendering
+      rendition.themes.default({
+        "body": {
+          "padding": "40px !important",
+          "font-family": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, serif !important",
+          "color": "var(--text-main) !important",
+          "line-height": "1.7 !important",
+          "font-size": "16px !important"
+        },
+        "p": {
+          "margin-bottom": "1.2em !important",
+          "text-align": "justify !important"
+        },
+        "img": {
+          "max-width": "100% !important",
+          "height": "auto !important",
+          "border-radius": "8px !important"
+        }
+      });
+
+      // Kopierschutz & Touch-Swipe-Gesten im Reader aktivieren
+      rendition.hooks.content.register(contents => {
+        const doc = contents.document;
+        doc.addEventListener('contextmenu', ev => ev.preventDefault());
+        
+        let startX = 0;
+        doc.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+        }, { passive: true });
+
+        doc.addEventListener('touchend', (e) => {
+          let endX = e.changedTouches[0].clientX;
+          let diff = startX - endX;
+          if (Math.abs(diff) > 40) {
+            if (diff > 0) {
+              rendition.next();
+            } else {
+              rendition.prev();
+            }
+          }
+        }, { passive: true });
+      });
+
+      await rendition.display();
+      loadingScreen.style.display = 'none';
+
+    } catch (err) {
+      console.error(err);
+      loadingScreen.textContent = 'Ladefehler: Bitte über einen Webserver (GitHub Pages) aufrufen.';
+    }
+  }
+
+  // Vollständige Druckfunktion für das gesamte Buch
+  document.getElementById('printBtn').addEventListener('click', async () => {
+    if (!currentBook) return;
+
+    try {
+      await currentBook.ready;
+      const spineItems = currentBook.spine.spineItems;
+      let fullHtmlContent = '';
+
+      for (const item of spineItems) {
+        const doc = await item.load(currentBook.load.bind(currentBook));
+        const bodyContent = doc.querySelector('body') ? doc.querySelector('body').innerHTML : '';
+        fullHtmlContent += `<section style="page-break-after: always; margin-bottom: 20mm;">${bodyContent}</section>`;
+        item.unload();
       }
-      authError.style.display = 'none';
-    });
-  });
 
-  authForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('authEmail').value.trim().toLowerCase();
-    const password = document.getElementById('authPassword').value;
-    let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
+      const printFrame = document.createElement('iframe');
+      printFrame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+      document.body.appendChild(printFrame);
 
-    if (authMode === 'register') {
-      const name = document.getElementById('authName').value.trim() || email.split('@')[0];
-      const passwordConfirm = document.getElementById('authPasswordConfirm').value;
+      const frameDoc = printFrame.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(`
+        <!DOCTYPE html>
+        <html lang="de">
+        <head>
+          <meta charset="UTF-8">
+          <title>Druckansicht</title>
+          <style>
+            @page { margin: 20mm; }
+            body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000; }
+            img { max-width: 100%; height: auto; }
+          </style>
+        </head>
+        <body>${fullHtmlContent}</body>
+        </html>
+      `);
+      frameDoc.close();
 
-      if (password !== passwordConfirm) {
-        authError.textContent = 'Die Passwörter stimmen nicht überein.';
-        authError.style.display = 'block';
-        return;
-      }
+      setTimeout(() => {
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+        setTimeout(() => document.body.removeChild(printFrame), 2000);
+      }, 500);
 
-      if (users.some(u => u.email === email)) {
-        authError.textContent = 'E-Mail ist bereits registriert.';
-        authError.style.display = 'block';
-        return;
-      }
-
-      users.push({ email, password, name });
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-      
-      // Automatisch abmelden nach erfolgreicher Registrierung wie gewünscht
-      showToast('Registrierung erfolgreich! Bitte jetzt anmelden.');
-      document.querySelectorAll('.auth-tab')[0].click();
-      authForm.reset();
-    } else {
-      const valid = users.find(u => u.email === email && u.password === password);
-      if (!valid) {
-        authError.textContent = 'Falsche E-Mail oder falsches Passwort.';
-        authError.style.display = 'block';
-        return;
-      }
-      currentUser = { email: valid.email, name: valid.name };
-      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(currentUser));
-      closeModal(authModal);
-      authForm.reset();
-      updateAuthUI();
-      showToast(`Willkommen zurück, ${currentUser.name}!`);
+    } catch (err) {
+      console.error(err);
     }
   });
 
-  openAuthBtn.addEventListener('click', () => { authError.style.display = 'none'; openModal(authModal); });
-  logoutBtn.addEventListener('click', () => openModal(logoutModal));
-
-  document.getElementById('confirmLogoutBtn').addEventListener('click', () => {
-    currentUser = null;
-    localStorage.removeItem(STORAGE_KEYS.SESSION);
-    closeModal(logoutModal);
-    updateAuthUI();
-    showToast('Erfolgreich abgemeldet.');
-  });
-
-  updateAuthUI();
+  initReader();
 </script>
 </body>
 </html>
