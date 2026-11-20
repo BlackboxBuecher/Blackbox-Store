@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blackbox Store</title>
+<meta name="description" content="Kein Bock auf langweilige Stangenware? Im Blackbox Store kriegst du pointierte Literatur und schrägen Humor direkt im Browser. Ohne Umwege lesen, abtauchen und kaputtlachen.">
+<meta name="keywords" content="Blackbox Store, Selbstverlag, Satire, eBooks online lesen, schwarzer Humor, pointierte Literatur">
+<meta name="robots" content="index, follow">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+<style>
+  :root {
+    --bg-primary: #F5F5F7;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #E5E5EA;
+    --bg-glass: rgba(255, 255, 255, 0.85);
+    --text-primary: #1D1D1F;
+    --text-secondary: #515154;
+    --text-muted: #86868B;
+    --accent-primary: #0066CC;
+    --accent-hover: #0077ED;
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --shadow-card: 0 12px 30px -10px rgba(0, 0, 0, 0.06);
+    --transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-banner {
+    position: relative;
+    width: 100%;
+    height: 420px;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: 40px 24px;
+    background-color: #1A1A1E;
+  }
+
+  .hero-banner-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(60px) saturate(1.4);
+    transform: scale(1.4);
+    opacity: 0.6;
+  }
+
+  .hero-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(245,245,247,0) 0%, rgba(245,245,247,0.4) 40%, rgba(245,245,247,0.88) 75%, var(--bg-primary) 100%);
+  }
+
+  .hero-content {
+    position: relative;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    z-index: 2;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(32px, 4.5vw, 52px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .hero-content p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 520px;
+    font-weight: 500;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .nav-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+    background: var(--text-primary);
+    color: var(--bg-surface);
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .brand-name {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .brand-name span {
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .user-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .user-dot {
+    width: 6px;
+    height: 6px;
+    background: #34C759;
+    border-radius: 50%;
+  }
+
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 999px;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--accent-primary);
+    color: #FFFFFF;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-hover);
+  }
+
+  .btn-secondary {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .btn-secondary:hover {
+    background: #D1D1D6;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+  }
+
+  .btn-ghost:hover {
+    color: var(--text-primary);
+  }
+
+  main {
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 36px 24px 80px;
+    flex: 1;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .search-bar {
+    position: relative;
+    width: 100%;
+    max-width: 260px;
+  }
+
+  .search-bar input {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    padding: 8px 14px 8px 34px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: var(--transition);
+  }
+
+  .search-bar input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 13px;
+    pointer-events: none;
+  }
+
+  .book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+  }
+
+  .book-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
+
+  .book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card);
+    border-color: rgba(0, 0, 0, 0.12);
+  }
+
+  .book-cover {
+    aspect-ratio: 2 / 3;
+    width: 100%;
+    background: linear-gradient(145deg, #E5E5EA 0%, #D1D1D6 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+  }
+
+  .book-cover img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .book-cover::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 90px;
+    background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.9) 100%);
+    pointer-events: none;
+  }
+
+  .cover-fallback-title {
+    position: relative;
+    z-index: 1;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: #1D1D1F;
+  }
+
+  .cover-fallback-author {
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .book-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .book-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .book-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+    color: var(--text-primary);
+  }
+
+  .book-author {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .book-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: auto;
+  }
+
+  .book-price {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .delete-btn {
+    background: rgba(255, 59, 48, 0.1);
+    color: #FF3B30;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .delete-btn:hover {
+    background: #FF3B30;
+    color: #FFFFFF;
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .modal-backdrop.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .modal {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 440px;
+    padding: 28px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+    position: relative;
+  }
+
+  .modal-large {
+    max-width: 720px;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 28px;
+    padding: 32px;
+  }
+
+  @media (max-width: 650px) {
+    .modal-large {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .modal-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .close-modal {
+    background: var(--bg-elevated);
+    border: none;
+    color: var(--text-secondary);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: grid;
+    place-items: center;
+  }
+
+  .close-modal:hover {
+    color: var(--text-primary);
+    background: #D1D1D6;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: var(--transition);
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .auth-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--bg-primary);
+    padding: 3px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-subtle);
+  }
+
+  .auth-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+
+  .auth-tab.active {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+
+  .error-msg {
+    color: #FF3B30;
+    font-size: 12px;
+    margin-bottom: 12px;
+    display: none;
+  }
+
+  footer {
+    border-top: 1px solid var(--border-subtle);
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    background: var(--bg-surface);
+  }
+
+  footer a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    color: var(--text-primary);
+    text-decoration: underline;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--text-primary);
+    color: var(--bg-surface);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: var(--transition);
+    z-index: 300;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-container">
+    <a href="#" class="brand">
+      <div class="brand-mark">B</div>
+      <div class="brand-name">Blackbox <span>Store</span></div>
+    </a>
+    <div class="nav-actions">
+      <div id="userBadge" class="user-badge">
+        <span class="user-dot"></span>
+        <span id="userEmailDisplay"></span>
+      </div>
+      <button id="openAddBookBtn" class="btn btn-primary" style="display: none;">+ Buch</button>
+      <button id="openAuthBtn" class="btn btn-secondary">Anmelden</button>
+      <button id="logoutBtn" class="btn btn-ghost" style="display: none;">Abmelden</button>
+    </div>
+  </div>
+</header>
+
+<div class="hero-banner">
+  <img id="bannerBg" src="eBooks/BCeB/Black-Comedy-Cover.jpg" alt="" class="hero-banner-bg" onerror="this.style.display='none'">
+  <div class="hero-banner-overlay"></div>
+  <div class="hero-content">
+    <h1>Blackbox Store</h1>
+    <p>Blackbox Bücher Schwarzer Humor und Satire.</p>
+  </div>
+</div>
+
+<main>
+  <div class="toolbar">
+    <h2 class="section-title">Verlagsprogramm (<span id="bookCount">0</span>)</h2>
+    <div class="search-bar">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Titel, Autor, Genre...">
+    </div>
+  </div>
+
+  <div id="bookGrid" class="book-grid"></div>
+</main>
+
+<footer>
+  <span>© 2026 Blackbox Store</span>
+  <span>·</span>
+  <a href="#" id="openImprintBtn">Impressum</a>
+  <span>·</span>
+  <a href="#" id="openPrivacyBtn">Datenschutz</a>
+</footer>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="authModalTitle">Anmelden</h2>
+      <button class="close-modal" data-close="authModal">&times;</button>
+    </div>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-mode="login">Anmelden</button>
+      <button type="button" class="auth-tab" data-mode="register">Registrieren</button>
+    </div>
+    <form id="authForm">
+      <div id="authError" class="error-msg"></div>
+      <div class="form-group">
+        <label for="authEmail">E-Mail</label>
+        <input type="email" id="authEmail" required placeholder="name@domain.de">
+      </div>
+      <div class="form-group">
+        <label for="authPassword">Passwort</label>
+        <input type="password" id="authPassword" required minlength="6" placeholder="••••••••">
+      </div>
+      <button type="submit" id="authSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Anmelden</button>
+    </form>
+  </div>
+</div>
+
+<!-- ADD BOOK MODAL -->
+<div id="addBookModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Neues Buch hinzufügen</h2>
+      <button class="close-modal" data-close="addBookModal">&times;</button>
+    </div>
+    <form id="addBookForm">
+      <div class="form-group">
+        <label for="bookTitle">Buchtitel</label>
+        <input type="text" id="bookTitle" required placeholder="Titel des Buches">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bookAuthor">Autor</label>
+          <input type="text" id="bookAuthor" required placeholder="Name">
+        </div>
+        <div class="form-group">
+          <label for="bookGenre">Genre</label>
+          <input type="text" id="bookGenre" required placeholder="Satire">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="bookPrice">Preis (€) (&lt; 0.01 = Free)</label>
+          <input type="number" id="bookPrice" step="0.01" min="0" required placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label for="bookCoverUrl">Cover URL (optional)</label>
+          <input type="url" id="bookCoverUrl" placeholder="https://...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="bookCoverFile">Cover Datei (lokal)</label>
+        <input type="file" id="bookCoverFile" accept="image/*">
+      </div>
+      <div class="form-group">
+        <label for="bookReaderPage">Individuelle Reader-Seite (Pfad zur HTML-Datei)</label>
+        <input type="text" id="bookReaderPage" value="eBooks/BCeB/eBookred.html" required placeholder="eBooks/BCeB/eBookred.html">
+      </div>
+      <div class="form-group">
+        <label for="bookDesc">Klappentext / Beschreibung</label>
+        <textarea id="bookDesc" rows="4" required placeholder="Beschreibung des Buches..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Buch veröffentlichen</button>
+    </form>
+  </div>
+</div>
+
+<!-- PREVIEW & BUY MODAL (Ohne Verfließung – komplett klar) -->
+<div id="previewModal" class="modal-backdrop">
+  <div class="modal modal-large">
+    <div id="previewCoverContainer" style="border-radius: 10px; min-height: 320px; position:relative; overflow:hidden; background:#E5E5EA;"></div>
+    <div style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 12px;">
+          <div>
+            <span id="previewGenre" style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;"></span>
+            <h2 id="previewTitle" style="font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-top: 2px;"></h2>
+            <div id="previewAuthor" style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;"></div>
+          </div>
+          <button class="close-modal" data-close="previewModal">&times;</button>
+        </div>
+        <p id="previewDesc" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; max-height: 180px; overflow-y: auto; padding-right: 4px;"></p>
+      </div>
+      <div id="previewActionContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPRINT MODAL -->
+<div id="imprintModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Impressum</h2>
+      <button class="close-modal" data-close="imprintModal">&times;</button>
+    </div>
+    <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+      <p style="margin-bottom: 12px;"><strong style="color: var(--text-primary);">Angaben gemäß § 5 TMG:</strong><br>
+      Blackbox Store / Selbstverlag<br>Matteo Neumann<br>Musterstraße 1<br>12345 Berlin</p>
+      <p style="margin-bottom: 12px;"><strong style="color: var(--text-primary);">Kontakt:</strong><br>E-Mail: blackboxbuecher@gmail.com</p>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY MODAL -->
+<div id="privacyModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Datenschutz</h2>
+      <button class="close-modal" data-close="privacyModal">&times;</button>
+    </div>
+    <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+      <p style="margin-bottom: 10px;"><strong style="color: var(--text-primary);">Datenschutzhinweis:</strong><br>Kontodaten werden lokal im Browser gespeichert.</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  const STORAGE_KEYS = {
+    USERS: 'blackbox_accounts_v17',
+    SESSION: 'blackbox_session_v17',
+    BOOKS: 'blackbox_books_v17'
+  };
+
+  const ADMIN_EMAIL = "blackboxbuecher@gmail.com";
+
+  const defaultBooks = [
+    {
+      id: 'bk-1',
+      title: 'Black Comedy – 50 geile Geschichten',
+      author: 'Matteo Neumann',
+      genre: 'Satire & Schwarzer Humor',
+      price: 0.00,
+      cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
+      readerPage: 'eBooks/BCeB/eBookred.html',
+      description: 'Fünfzig rabenschwarze Kurzgeschichten über Nachbarschaftskriege, missglückte Dates, absurde Alltagsdramen und skurrile Zufälle.'
+    }
+  ];
+
+  let books = JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOKS)) || defaultBooks;
+  let currentUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.SESSION)) || null;
+  let authMode = 'login';
+  let activeBook = null;
+
+  const bookGrid = document.getElementById('bookGrid');
+  const bookCount = document.getElementById('bookCount');
+  const searchInput = document.getElementById('searchInput');
+  const openAuthBtn = document.getElementById('openAuthBtn');
+  const openAddBookBtn = document.getElementById('openAddBookBtn');
+  const openImprintBtn = document.getElementById('openImprintBtn');
+  const openPrivacyBtn = document.getElementById('openPrivacyBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const userBadge = document.getElementById('userBadge');
+  const userEmailDisplay = document.getElementById('userEmailDisplay');
+  const authModal = document.getElementById('authModal');
+  const addBookModal = document.getElementById('addBookModal');
+  const previewModal = document.getElementById('previewModal');
+  const imprintModal = document.getElementById('imprintModal');
+  const privacyModal = document.getElementById('privacyModal');
+  const authForm = document.getElementById('authForm');
+  const authError = document.getElementById('authError');
+  const authModalTitle = document.getElementById('authModalTitle');
+  const authSubmitBtn = document.getElementById('authSubmitBtn');
+  const addBookForm = document.getElementById('addBookForm');
+  
+  const previewCoverContainer = document.getElementById('previewCoverContainer');
+  const previewTitle = document.getElementById('previewTitle');
+  const previewAuthor = document.getElementById('previewAuthor');
+  const previewGenre = document.getElementById('previewGenre');
+  const previewDesc = document.getElementById('previewDesc');
+  const previewActionContainer = document.getElementById('previewActionContainer');
+  const toast = document.getElementById('toast');
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  function saveBooks() {
+    localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(books));
+  }
+
+  function updateAuthUI() {
+    if (currentUser) {
+      openAuthBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-flex';
+      userBadge.style.display = 'inline-flex';
+      userEmailDisplay.textContent = currentUser.email;
+
+      if (currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+        openAddBookBtn.style.display = 'inline-flex';
+      } else {
+        openAddBookBtn.style.display = 'none';
+      }
+    } else {
+      openAuthBtn.style.display = 'inline-flex';
+      openAddBookBtn.style.display = 'none';
+      logoutBtn.style.display = 'none';
+      userBadge.style.display = 'none';
+    }
+    renderBooks(searchInput.value);
+  }
+
+  function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function renderBooks(filter = '') {
+    const term = filter.trim().toLowerCase();
+    const filtered = books.filter(b =>
+      b.title.toLowerCase().includes(term) ||
+      b.author.toLowerCase().includes(term) ||
+      b.genre.toLowerCase().includes(term)
+    );
+
+    bookCount.textContent = filtered.length;
+    bookGrid.innerHTML = '';
+
+    const isAdmin = currentUser && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+    if (books.length > 0 && books[0].cover) {
+      document.getElementById('bannerBg').src = books[0].cover;
+    }
+
+    filtered.forEach(book => {
+      const card = document.createElement('article');
+      card.className = 'book-card';
+
+      const coverMarkup = book.cover
+        ? `<img src="${escapeHTML(book.cover)}" alt="${escapeHTML(book.title)}">`
+        : `<div class="cover-fallback-title">${escapeHTML(book.title)}</div>
+           <div class="cover-fallback-author">${escapeHTML(book.author)}</div>`;
+
+      const priceDisplay = book.price < 0.01 ? 'For Free' : `${Number(book.price).toFixed(2)} €`;
+
+      const deleteMarkup = isAdmin
+        ? `<button class="delete-btn" data-id="${book.id}">Löschen</button>`
+        : `<span></span>`;
+
+      card.innerHTML = `
+        <div class="book-cover">${coverMarkup}</div>
+        <div class="book-body">
+          <div class="book-meta">${escapeHTML(book.genre)}</div>
+          <h3 class="book-title">${escapeHTML(book.title)}</h3>
+          <div class="book-author">${escapeHTML(book.author)}</div>
+          <div class="book-footer">
+            <span class="book-price">${priceDisplay}</span>
+            ${deleteMarkup}
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-btn')) return;
+        openPreview(book);
+      });
+
+      bookGrid.appendChild(card);
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.target.getAttribute('data-id');
+        books = books.filter(b => b.id !== id);
+        saveBooks();
+        renderBooks(searchInput.value);
+        showToast('Buch entfernt.');
+      });
+    });
+  }
+
+  function openPreview(book) {
+    activeBook = book;
+    previewTitle.textContent = book.title;
+    previewAuthor.textContent = `von ${book.author}`;
+    previewGenre.textContent = book.genre;
+    previewDesc.textContent = book.description;
+
+    previewCoverContainer.innerHTML = book.cover
+      ? `<img src="${escapeHTML(book.cover)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" alt="">`
+      : `<div style="padding:20px;" class="cover-fallback-title">${escapeHTML(book.title)}</div>`;
+
+    previewActionContainer.innerHTML = '';
+
+    const readBtn = document.createElement('a');
+    readBtn.className = 'btn btn-secondary';
+    readBtn.style.width = '100%';
+    readBtn.textContent = '📖 Im Browser lesen';
+    readBtn.href = book.readerPage || 'eBooks/BCeB/eBookred.html';
+    readBtn.target = '_blank';
+    previewActionContainer.appendChild(readBtn);
+
+    if (book.price < 0.01) {
+      const freeNotice = document.createElement('div');
+      freeNotice.style.cssText = 'font-size:12px; color:#34C759; text-align:center; font-weight:500;';
+      freeNotice.textContent = 'Dieses Buch ist komplett kostenlos.';
+      previewActionContainer.appendChild(freeNotice);
+    } else {
+      const buyBtn = document.createElement('button');
+      buyBtn.className = 'btn btn-primary';
+      buyBtn.style.width = '100%';
+      buyBtn.textContent = `Für ${Number(book.price).toFixed(2)} € unterstützen`;
+      buyBtn.onclick = () => {
+        showToast(`Vielen Dank für deine Unterstützung (${Number(book.price).toFixed(2)} €)!`);
+        closeModal(previewModal);
+      };
+      previewActionContainer.appendChild(buyBtn);
+    }
+
+    openModal(previewModal);
+  }
+
+  function openModal(modal) { modal.classList.add('active'); }
+  function closeModal(modal) { modal.classList.remove('active'); }
+
+  document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.addEventListener('click', () => closeModal(document.getElementById(btn.getAttribute('data-close'))));
+  });
+
+  [authModal, addBookModal, previewModal, imprintModal, privacyModal].forEach(modal => {
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(modal); });
+  });
+
+  openImprintBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(imprintModal); });
+  openPrivacyBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(privacyModal); });
+
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      authMode = tab.getAttribute('data-mode');
+      authModalTitle.textContent = authMode === 'login' ? 'Anmelden' : 'Registrieren';
+      authSubmitBtn.textContent = authMode === 'login' ? 'Anmelden' : 'Registrieren';
+      authError.style.display = 'none';
+    });
+  });
+
+  authForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('authEmail').value.trim().toLowerCase();
+    const password = document.getElementById('authPassword').value;
+    let users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS)) || [];
+
+    if (authMode === 'register') {
+      if (users.some(u => u.email === email)) {
+        authError.textContent = 'E-Mail bereits registriert.';
+        authError.style.display = 'block';
+        return;
+      }
+      users.push({ email, password });
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+      currentUser = { email };
+      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(currentUser));
+      closeModal(authModal);
+      authForm.reset();
+      updateAuthUI();
+      showToast('Erfolgreich registriert.');
+    } else {
+      const valid = users.find(u => u.email === email && u.password === password);
+      if (!valid) {
+        authError.textContent = 'Falsche Zugangsdaten.';
+        authError.style.display = 'block';
+        return;
+      }
+      currentUser = { email: valid.email };
+      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(currentUser));
+      closeModal(authModal);
+      authForm.reset();
+      updateAuthUI();
+      showToast('Angemeldet.');
+    }
+  });
+
+  openAuthBtn.addEventListener('click', () => { authError.style.display = 'none'; openModal(authModal); });
+  logoutBtn.addEventListener('click', () => { currentUser = null; localStorage.removeItem(STORAGE_KEYS.SESSION); updateAuthUI(); showToast('Abgemeldet.'); });
+  openAddBookBtn.addEventListener('click', () => { if (currentUser) openModal(addBookModal); });
+
+  addBookForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    const title = document.getElementById('bookTitle').value.trim();
+    const author = document.getElementById('bookAuthor').value.trim();
+    const genre = document.getElementById('bookGenre').value.trim();
+    const price = parseFloat(document.getElementById('bookPrice').value) || 0;
+    const coverUrl = document.getElementById('bookCoverUrl').value.trim();
+    const coverFileInput = document.getElementById('bookCoverFile');
+    const readerPage = document.getElementById('bookReaderPage').value.trim() || 'eBooks/BCeB/eBookred.html';
+    const description = document.getElementById('bookDesc').value.trim();
+
+    let coverData = coverUrl;
+
+    if (coverFileInput.files && coverFileInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => { save(e.target.result); };
+      reader.readAsDataURL(coverFileInput.files[0]);
+    } else {
+      save(coverData);
+    }
+
+    function save(finalCover) {
+      books.unshift({
+        id: 'bk-' + Date.now(),
+        title, author, genre, price, cover: finalCover, readerPage, description
+      });
+      saveBooks();
+      renderBooks(searchInput.value);
+      addBookForm.reset();
+      document.getElementById('bookReaderPage').value = 'eBooks/BCeB/eBookred.html';
+      closeModal(addBookModal);
+      showToast('Buch hinzugefügt.');
+    }
+  });
+
+  searchInput.addEventListener('input', (e) => renderBooks(e.target.value));
+
+  updateAuthUI();
+</script>
+</body>
+</html>
