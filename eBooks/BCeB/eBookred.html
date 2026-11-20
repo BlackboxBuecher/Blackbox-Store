@@ -3,14 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackbox Store Black Comedy</title>
-<!-- ePub.js und JSZip Bibliotheken -->
+<title>Black Comedy – Blackbox Store Reader</title>
+<!-- JSZip & ePub.js zum Auslesen der EPUB-Datei -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+<!-- StPageFlip für den realistischen 3D-Umblätter-Effekt (wie Google Books) -->
+<script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 <style>
   :root {
-    --bg-main: #FFFFFF;
+    --bg-app: #F5F5F7;
+    --bg-page: #FFFFFF;
     --text-main: #1D1D1F;
+    --text-muted: #86868B;
     --btn-bg: #E5E5EA;
     --btn-hover: #D1D1D6;
     --border: rgba(0, 0, 0, 0.08);
@@ -26,7 +30,7 @@
   }
 
   body {
-    background-color: var(--bg-main);
+    background-color: var(--bg-app);
     color: var(--text-main);
     height: 100vh;
     display: flex;
@@ -43,7 +47,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    z-index: 10;
+    z-index: 20;
   }
 
   .nav-left {
@@ -99,16 +103,108 @@
   main {
     flex: 1;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 50px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
     position: relative;
-    background: #FFFFFF;
     overflow: hidden;
   }
 
-  #viewer {
+  #loadingScreen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-app);
+    font-size: 14px;
+    color: var(--text-muted);
+    z-index: 15;
+  }
+
+  /* Der 3D-Buch-Container */
+  #flipbookContainer {
     width: 100%;
     height: 100%;
-    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .book-page {
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    padding: 36px 40px;
+    overflow: hidden;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* Leichter Buchfalz-Schatten in der Mitte */
+  .book-page.--left {
+    border-right: none;
+    background: linear-gradient(to right, #ffffff 94%, #f2f2f5 100%);
+  }
+
+  .book-page.--right {
+    border-left: none;
+    background: linear-gradient(to left, #ffffff 94%, #f2f2f5 100%);
+  }
+
+  .page-content {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #1D1D1F;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  .page-content h1, .page-content h2, .page-content h3 {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+    margin-bottom: 12px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .page-content p {
+    margin-bottom: 10px;
+    text-align: justify;
+  }
+
+  .page-content img {
+    max-width: 100%;
+    max-height: 75%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    border-radius: 6px;
+  }
+
+  .page-footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding-top: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  @media (max-width: 768px) {
+    main {
+      padding: 8px;
+    }
+    .book-page {
+      padding: 20px 22px;
+    }
+    .page-content {
+      font-size: 14px;
+      line-height: 1.55;
+    }
   }
 </style>
 </head>
@@ -125,125 +221,179 @@
 </header>
 
 <main>
-  <div id="viewer"></div>
+  <div id="loadingScreen">Buch wird gebunden...</div>
+  <div id="flipbookContainer">
+    <div id="flipbook"></div>
+  </div>
 </main>
 
 <script>
+  const epubFileName = 'Black-Comedy-50-geile-Geschichten-Blackbox-Buecher.epub';
+  let currentBook = null;
+  let pageFlip = null;
+  let fullHtmlForPrint = '';
+
+  // Tastatursteuerung & Kopierschutz
   document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && ['s', 'p', 'c', 'u'].includes(e.key.toLowerCase())) {
       e.preventDefault();
     }
-    if (e.key === 'ArrowLeft' && window.readerRendition) window.readerRendition.prev();
-    if (e.key === 'ArrowRight' && window.readerRendition) window.readerRendition.next();
+    if (e.key === 'ArrowLeft' && pageFlip) pageFlip.flipPrev();
+    if (e.key === 'ArrowRight' && pageFlip) pageFlip.flipNext();
   });
 
-  const epubFileName = 'Black-Comedy-50-geile-Geschichten-Blackbox-Buecher.epub';
-  let currentBook = null;
+  async function initBook() {
+    const loadingScreen = document.getElementById('loadingScreen');
+    const flipbookEl = document.getElementById('flipbook');
 
-  async function initReader() {
     try {
       const response = await fetch(epubFileName);
-      if (!response.ok) throw new Error('EPUB-Datei auf dem Server nicht gefunden.');
-      
+      if (!response.ok) throw new Error('EPUB nicht gefunden.');
+
       const buffer = await response.arrayBuffer();
       currentBook = ePub(buffer);
-      
-      window.readerRendition = currentBook.renderTo("viewer", {
-        width: "100%",
-        height: "100%",
-        spread: "auto"
-      });
-
-      window.readerRendition.hooks.content.register(contents => {
-        const doc = contents.document;
-        doc.addEventListener('contextmenu', ev => ev.preventDefault());
-        doc.body.style.userSelect = 'none';
-        doc.body.style.webkitUserSelect = 'none';
-
-        // Touch- / Swipe-Erkennung direkt im Buch-Inhalt für flüssiges Wischen
-        let startX = 0;
-        doc.addEventListener('touchstart', (e) => {
-          startX = e.touches[0].clientX;
-        }, { passive: true });
-
-        doc.addEventListener('touchend', (e) => {
-          let endX = e.changedTouches[0].clientX;
-          let diff = startX - endX;
-          if (Math.abs(diff) > 50) {
-            if (diff > 0) {
-              window.readerRendition.next();
-            } else {
-              window.readerRendition.prev();
-            }
-          }
-        }, { passive: true });
-      });
-
-      await window.readerRendition.display();
-
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  // Print-Funktion
-  document.getElementById('printBtn').addEventListener('click', async () => {
-    if (!currentBook) return;
-
-    try {
       await currentBook.ready;
-      const spineItems = currentBook.spine.spineItems;
-      let fullHtmlContent = '';
 
+      const spineItems = currentBook.spine.spineItems;
+      const pagesHtml = [];
+
+      // Alle Kapitel laden und sauber in einzelne Buchseiten aufteilen
       for (const item of spineItems) {
         const doc = await item.load(currentBook.load.bind(currentBook));
-        const bodyContent = doc.querySelector('body') ? doc.querySelector('body').innerHTML : '';
-        fullHtmlContent += `<section class="print-chapter">${bodyContent}</section>`;
+        const body = doc.querySelector('body');
+        if (body) {
+          fullHtmlForPrint += `<section class="print-chapter">${body.innerHTML}</section>`;
+
+          // Elemente (Überschriften, Absätze, Bilder) einsammeln
+          const blocks = Array.from(body.children);
+          if (blocks.length === 0 && body.textContent.trim()) {
+            pagesHtml.push(`<p>${body.innerHTML}</p>`);
+          } else {
+            let currentChunk = '';
+            let charCount = 0;
+            // Zeichenlimit pro Seite je nach Bildschirmgröße
+            const maxChars = window.innerWidth < 768 ? 950 : 1250;
+
+            for (const block of blocks) {
+              const html = block.outerHTML;
+              const textLen = block.textContent.trim().length;
+              const hasImg = block.querySelector('img') || block.tagName === 'IMG';
+
+              if (hasImg) {
+                if (currentChunk.trim()) {
+                  pagesHtml.push(currentChunk);
+                  currentChunk = '';
+                  charCount = 0;
+                }
+                pagesHtml.push(html);
+                continue;
+              }
+
+              if (charCount + textLen > maxChars && currentChunk.trim()) {
+                pagesHtml.push(currentChunk);
+                currentChunk = html;
+                charCount = textLen;
+              } else {
+                currentChunk += html;
+                charCount += textLen;
+              }
+            }
+            if (currentChunk.trim()) {
+              pagesHtml.push(currentChunk);
+            }
+          }
+        }
         item.unload();
       }
 
-      const printFrame = document.createElement('iframe');
-      printFrame.style.position = 'fixed';
-      printFrame.style.right = '0';
-      printFrame.style.bottom = '0';
-      printFrame.style.width = '0';
-      printFrame.style.height = '0';
-      printFrame.style.border = '0';
-      document.body.appendChild(printFrame);
+      // Leere Seiten rausfiltern
+      const cleanPages = pagesHtml.filter(p => p.replace(/<[^>]*>/g, '').trim().length > 0 || p.includes('<img'));
 
-      const frameDoc = printFrame.contentWindow.document;
-      frameDoc.open();
-      frameDoc.write(`
-        <!DOCTYPE html>
-        <html lang="de">
-        <head>
-          <meta charset="UTF-8">
-          <title>Black Comedy – Druckansicht</title>
-          <style>
-            @page { margin: 20mm; }
-            body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000; }
-            .print-chapter { page-break-after: always; }
-            .print-chapter:last-child { page-break-after: auto; }
-            img { max-width: 100%; height: auto; }
-          </style>
-        </head>
-        <body>${fullHtmlContent}</body>
-        </html>
-      `);
-      frameDoc.close();
+      // HTML-Seiten in den Flipbook-Container bauen
+      cleanPages.forEach((content, index) => {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'book-page';
+        pageDiv.innerHTML = `
+          <div class="page-content">${content}</div>
+          <div class="page-footer">${index + 1} / ${cleanPages.length}</div>
+        `;
+        flipbookEl.appendChild(pageDiv);
+      });
 
-      setTimeout(() => {
-        printFrame.contentWindow.focus();
-        printFrame.contentWindow.print();
-        setTimeout(() => document.body.removeChild(printFrame), 2000);
-      }, 500);
+      // Maße für Doppelseite (Desktop) oder Einzelseite (Mobil) berechnen
+      const isMobile = window.innerWidth < 768;
+      const availableHeight = window.innerHeight - 90;
+      const pageWidth = isMobile ? Math.min(window.innerWidth - 24, 420) : Math.min(Math.floor((window.innerWidth - 80) / 2), 480);
+      const pageHeight = Math.min(availableHeight, 720);
+
+      // 3D-PageFlip initialisieren (wie Google Books)
+      pageFlip = new St.PageFlip(flipbookEl, {
+        width: pageWidth,
+        height: pageHeight,
+        size: 'fixed',
+        minWidth: 280,
+        maxWidth: 600,
+        minHeight: 400,
+        maxHeight: 850,
+        drawShadow: true,
+        flippingTime: 650,
+        usePortrait: isMobile,
+        startZIndex: 0,
+        autoSize: false,
+        maxShadowOpacity: 0.35,
+        showCover: false,
+        mobileScrollSupport: false,
+        swipeDistance: 30,
+        clickEventForward: false,
+        useMouseEvents: true
+      });
+
+      pageFlip.loadFromHTML(document.querySelectorAll('.book-page'));
+      loadingScreen.style.display = 'none';
 
     } catch (err) {
       console.error(err);
+      loadingScreen.textContent = 'Fehler beim Laden: Bitte über einen Webserver öffnen.';
     }
+  }
+
+  // Print-Funktion für das komplette Buch
+  document.getElementById('printBtn').addEventListener('click', () => {
+    if (!fullHtmlForPrint) return;
+
+    const printFrame = document.createElement('iframe');
+    printFrame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    document.body.appendChild(printFrame);
+
+    const frameDoc = printFrame.contentWindow.document;
+    frameDoc.open();
+    frameDoc.write(`
+      <!DOCTYPE html>
+      <html lang="de">
+      <head>
+        <meta charset="UTF-8">
+        <title>Black Comedy – Druckansicht</title>
+        <style>
+          @page { margin: 20mm; }
+          body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000; }
+          .print-chapter { page-break-after: always; }
+          .print-chapter:last-child { page-break-after: auto; }
+          img { max-width: 100%; height: auto; }
+        </style>
+      </head>
+      <body>${fullHtmlForPrint}</body>
+      </html>
+    `);
+    frameDoc.close();
+
+    setTimeout(() => {
+      printFrame.contentWindow.focus();
+      printFrame.contentWindow.print();
+      setTimeout(() => document.body.removeChild(printFrame), 2000);
+    }, 400);
   });
 
-  initReader();
+  initBook();
 </script>
 </body>
 </html>
