@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Black Comedy – Blackbox Store Reader</title>
+<title>Blackbox Store Black Comedy</title>
 <!-- ePub.js und JSZip Bibliotheken -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
@@ -11,7 +11,6 @@
   :root {
     --bg-main: #FFFFFF;
     --text-main: #1D1D1F;
-    --text-muted: #86868B;
     --btn-bg: #E5E5EA;
     --btn-hover: #D1D1D6;
     --border: rgba(0, 0, 0, 0.08);
@@ -103,43 +102,13 @@
     height: 100%;
     position: relative;
     background: #FFFFFF;
+    overflow: hidden;
   }
 
   #viewer {
     width: 100%;
     height: 100%;
     background: #FFFFFF;
-  }
-
-  footer {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    padding: 10px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .page-btn {
-    background: var(--btn-bg);
-    color: var(--text-main);
-    border: none;
-    padding: 7px 18px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-
-  .page-btn:hover {
-    background: var(--btn-hover);
-  }
-
-  #statusMsg {
-    font-size: 12px;
-    color: var(--text-muted);
   }
 </style>
 </head>
@@ -151,21 +120,13 @@
     <span class="book-title">Black Comedy – 50 geile Geschichten</span>
   </div>
   <div class="controls-right">
-    <button class="tool-btn" id="decreaseFont">A-</button>
-    <button class="tool-btn" id="increaseFont">A+</button>
+    <button class="tool-btn" id="printBtn" title="Gesamtes Buch drucken">Print</button>
   </div>
 </header>
 
 <main>
-  <!-- Randloses Anzeigefenster ohne Kästen -->
   <div id="viewer"></div>
 </main>
-
-<footer>
-  <button id="prevBtn" class="page-btn">← Vorherige Seite</button>
-  <span id="statusMsg">Lade E-Book vom Server...</span>
-  <button id="nextBtn" class="page-btn">Nächste Seite →</button>
-</footer>
 
 <script>
   document.addEventListener('keydown', (e) => {
@@ -176,63 +137,111 @@
     if (e.key === 'ArrowRight' && window.readerRendition) window.readerRendition.next();
   });
 
-  // Exakter Dateiname im selben Ordner
   const epubFileName = 'Black-Comedy-50-geile-Geschichten-Blackbox-Buecher.epub';
-  const statusMsg = document.getElementById('statusMsg');
-  let currentSize = 100;
+  let currentBook = null;
 
   async function initReader() {
     try {
-      statusMsg.textContent = 'Verbinde...';
-
-      // Holt die Datei automatisch direkt vom Server-Pfad
       const response = await fetch(epubFileName);
       if (!response.ok) throw new Error('EPUB-Datei auf dem Server nicht gefunden.');
       
       const buffer = await response.arrayBuffer();
+      currentBook = ePub(buffer);
       
-      statusMsg.textContent = 'Rendere Buch...';
-      const book = ePub(buffer);
-      
-      window.readerRendition = book.renderTo("viewer", {
+      window.readerRendition = currentBook.renderTo("viewer", {
         width: "100%",
         height: "100%",
         spread: "auto"
       });
 
-      // Schutz gegen Kopieren und Rechtsklick im Buch
       window.readerRendition.hooks.content.register(contents => {
         const doc = contents.document;
         doc.addEventListener('contextmenu', ev => ev.preventDefault());
         doc.body.style.userSelect = 'none';
         doc.body.style.webkitUserSelect = 'none';
+
+        // Touch- / Swipe-Erkennung direkt im Buch-Inhalt für flüssiges Wischen
+        let startX = 0;
+        doc.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+        }, { passive: true });
+
+        doc.addEventListener('touchend', (e) => {
+          let endX = e.changedTouches[0].clientX;
+          let diff = startX - endX;
+          if (Math.abs(diff) > 50) {
+            if (diff > 0) {
+              window.readerRendition.next();
+            } else {
+              window.readerRendition.prev();
+            }
+          }
+        }, { passive: true });
       });
 
       await window.readerRendition.display();
-      statusMsg.textContent = 'Bereit';
-
-      document.getElementById('prevBtn').onclick = () => window.readerRendition.prev();
-      document.getElementById('nextBtn').onclick = () => window.readerRendition.next();
-
-      document.getElementById('decreaseFont').onclick = () => {
-        if (currentSize > 80) {
-          currentSize -= 10;
-          window.readerRendition.themes.fontSize(currentSize + '%');
-        }
-      };
-
-      document.getElementById('increaseFont').onclick = () => {
-        if (currentSize < 150) {
-          currentSize += 10;
-          window.readerRendition.themes.fontSize(currentSize + '%');
-        }
-      };
 
     } catch (error) {
       console.error(error);
-      statusMsg.textContent = 'Ladefehler: Bitte über einen Webserver aufrufen.';
     }
   }
+
+  // Print-Funktion
+  document.getElementById('printBtn').addEventListener('click', async () => {
+    if (!currentBook) return;
+
+    try {
+      await currentBook.ready;
+      const spineItems = currentBook.spine.spineItems;
+      let fullHtmlContent = '';
+
+      for (const item of spineItems) {
+        const doc = await item.load(currentBook.load.bind(currentBook));
+        const bodyContent = doc.querySelector('body') ? doc.querySelector('body').innerHTML : '';
+        fullHtmlContent += `<section class="print-chapter">${bodyContent}</section>`;
+        item.unload();
+      }
+
+      const printFrame = document.createElement('iframe');
+      printFrame.style.position = 'fixed';
+      printFrame.style.right = '0';
+      printFrame.style.bottom = '0';
+      printFrame.style.width = '0';
+      printFrame.style.height = '0';
+      printFrame.style.border = '0';
+      document.body.appendChild(printFrame);
+
+      const frameDoc = printFrame.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(`
+        <!DOCTYPE html>
+        <html lang="de">
+        <head>
+          <meta charset="UTF-8">
+          <title>Black Comedy – Druckansicht</title>
+          <style>
+            @page { margin: 20mm; }
+            body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000; }
+            .print-chapter { page-break-after: always; }
+            .print-chapter:last-child { page-break-after: auto; }
+            img { max-width: 100%; height: auto; }
+          </style>
+        </head>
+        <body>${fullHtmlContent}</body>
+        </html>
+      `);
+      frameDoc.close();
+
+      setTimeout(() => {
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+        setTimeout(() => document.body.removeChild(printFrame), 2000);
+      }, 500);
+
+    } catch (err) {
+      console.error(err);
+    }
+  });
 
   initReader();
 </script>
