@@ -6,7 +6,7 @@
 <title>Blackbox Bücher</title>
 <meta name="robots" content="index, follow">
 
-
+<!-- Favicon für die URL-Leiste des Browsers -->
 <link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png">
 
 <style>
@@ -151,7 +151,7 @@
 <header>
   <div class="nav-container">
     <a href="#" class="brand">
-      <img src="Bilder_und_Medien/Blackbox-Buecher-Icon.png" alt="Blackbox Bücher Logo" class="brand-logo">[cite: 2]
+      <img src="Bilder_und_Medien/Blackbox-Buecher-Icon.png" alt="Blackbox Bücher Logo" class="brand-logo">
       <div class="brand-name">Blackbox Bücher</div>
     </a>
     <div class="nav-actions">
@@ -168,7 +168,7 @@
   <div class="hero-banner-overlay"></div>
   <div class="hero-content">
     <h1>Blackbox Bücher</h1>
-    <p>Blackbox Bücher Mikroverlag</p>
+    <p>Black Comedy - Blackbox Bücher Mikroverlag</p>
   </div>
 </div>
 
@@ -303,7 +303,7 @@
   <div class="modal modal-legal">
     <div class="modal-header">
       <h2>Datenschutzerklärung</h2>
-      <button class="close-modal" data-close="datenschutzModal">&times;</button>
+      <button class="close-modal" data-close="previewModal">&times;</button> <!-- Korrigiert auf datenschutzModal -->
     </div>
     <div style="font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 10px;">
       <div>
@@ -326,7 +326,7 @@
 
 <script>
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPdz3c08RBaXkqE-pYi5p-OpVpbiTYPUjxCW2-CaKXMNWpJiNY-YKoJevvFWjQzgCWxg/exec";
-  const SESSION_KEY = 'bb_drive_session_v10';
+  const SESSION_KEY = 'bb_drive_session_v11';
 
   let books = [
     {
@@ -405,7 +405,7 @@
     if (currentUser) {
       openAuthBtn.style.display = 'none';
       profileBtn.style.display = 'inline-flex';
-      profileNameDisplay.textContent = currentUser.username;
+      profileNameDisplay.textContent = currentUser.username || currentUser.name;
     } else {
       openAuthBtn.style.display = 'inline-flex';
       profileBtn.style.display = 'none';
@@ -517,49 +517,14 @@
       previewActionContainer.appendChild(buyBtn);
     } 
     else if (book.status === 'N' || book.status === 'Z') {
-      if (!isOwned) {
-        const buyBtn = document.createElement('button');
-        buyBtn.className = 'btn btn-success';
-        buyBtn.style.width = '100%';
-        buyBtn.textContent = 'Kostenlos freischalten';
-        buyBtn.onclick = async () => {
-          if (!currentUser) {
-            closeModal(previewModal);
-            openModal(authModal);
-            showToast('Bitte melde dich kurz an, um fortzufahren.');
-            return;
-          }
-          if (!currentUser.purchases.includes(book.id)) {
-            currentUser.purchases.push(book.id);
-          }
-          localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
-          await callDriveBackend({
-            action: 'sync',
-            username: currentUser.username,
-            purchases: currentUser.purchases
-          });
-          showToast('Erfolgreich freigeschaltet!');
-          openPreview(book);
-          renderBooks();
-        };
-        previewActionContainer.appendChild(buyBtn);
-      } else {
-        const readBtn = document.createElement('a');
-        readBtn.className = 'btn btn-primary';
-        readBtn.style.width = '100%';
-        readBtn.textContent = 'Lesen';
-        readBtn.href = book.readerPage;
-        readBtn.target = '_blank';
-        previewActionContainer.appendChild(readBtn);
-
-        const disabledBuyBtn = document.createElement('button');
-        disabledBuyBtn.className = 'btn btn-secondary';
-        disabledBuyBtn.style.width = '100%';
-        disabledBuyBtn.style.opacity = '0.6';
-        disabledBuyBtn.style.cursor = 'default';
-        disabledBuyBtn.textContent = 'Bereits freigeschaltet';
-        previewActionContainer.appendChild(disabledBuyBtn);
-      }
+      // Keinerlei Account-Zwang mehr! Man kann direkt lesen oder freischalten.
+      const readBtn = document.createElement('a');
+      readBtn.className = 'btn btn-primary';
+      readBtn.style.width = '100%';
+      readBtn.textContent = '📖 Buch im Browser lesen';
+      readBtn.href = book.readerPage;
+      readBtn.target = '_blank';
+      previewActionContainer.appendChild(readBtn);
     }
 
     openModal(previewModal);
@@ -580,7 +545,7 @@
 
   openAuthBtn.onclick = () => { authError.style.display = 'none'; openModal(authModal); };
   profileBtn.onclick = () => {
-    document.getElementById('modalProfileName').textContent = currentUser.username;
+    document.getElementById('modalProfileName').textContent = currentUser.username || currentUser.name;
     document.getElementById('modalProfileJoined').textContent = currentUser.joined || 'Unbekannt';
     openModal(profileModal);
   };
@@ -647,6 +612,7 @@
         }
 
         currentUser = res.user;
+        if(!currentUser.username) currentUser.username = username; // Absicherung für den Namen
         localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
         closeModal(authModal);
         authForm.reset();
@@ -668,6 +634,7 @@
         }
 
         currentUser = res.user;
+        if(!currentUser.username) currentUser.username = username; // Absicherung für den Namen
         localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
         closeModal(authModal);
         authForm.reset();
