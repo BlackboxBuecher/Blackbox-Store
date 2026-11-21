@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Black Comedy – Blackbox Bücher</title>
-<!-- ePub.js und JSZip -->
+<link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 <style>
@@ -48,7 +48,7 @@
     overflow: hidden;
   }
 
-  /* Dezent gehaltener Apple-Header */
+  
   header {
     background: var(--bg-reader);
     border-bottom: 1px solid var(--border);
@@ -239,7 +239,7 @@
     }
   }
 
-  // Vollständige Druckfunktion für das gesamte Buch
+
   document.getElementById('printBtn').addEventListener('click', async () => {
     if (!currentBook) return;
 
