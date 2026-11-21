@@ -6,6 +6,9 @@
 <title>Blackbox Bücher</title>
 <meta name="robots" content="index, follow">
 
+<!-- NEU: Favicon für die URL-Leiste des Browsers -->
+<link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png">
+
 <style>
   :root {
     --bg-primary: #F5F5F7;
@@ -51,7 +54,8 @@
   header { position: sticky; top: 0; z-index: 100; background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); }
   .nav-container { max-width: 1100px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
   .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
-  .brand-mark { width: 30px; height: 30px; background: var(--text-primary); color: var(--bg-surface); border-radius: 6px; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  
+  .brand-logo { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; display: block; }
   .brand-name { font-size: 16px; font-weight: 600; }
 
   .nav-actions { display: flex; align-items: center; gap: 10px; }
@@ -100,7 +104,6 @@
   .tag-buy { background: rgba(0, 102, 204, 0.15); color: var(--accent-primary); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
   .tag-secret { background: rgba(255, 149, 0, 0.15); color: #FF9500; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
 
-
   .modal-backdrop { 
     position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
     display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 200; 
@@ -136,8 +139,8 @@
 
   footer { border-top: 1px solid var(--border-subtle); padding: 24px; text-align: center; color: var(--text-muted); font-size: 12px; background: var(--bg-surface); }
   .footer-links { margin-top: 8px; display: flex; gap: 16px; justify-content: center; }
-  .footer-links button { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; text-decoration: underline; transition: color 0.2s; }
-  .footer-links button:hover { color: var(--text-primary); }
+  .footer-links button, .footer-links a { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; text-decoration: underline; transition: color 0.2s; }
+  .footer-links button:hover, .footer-links a:hover { color: var(--text-primary); }
 
   .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text-primary); color: var(--bg-surface); padding: 12px 20px; border-radius: 999px; font-size: 13px; transform: translateY(100px); opacity: 0; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s; z-index: 300; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
   .toast.show { transform: translateY(0); opacity: 1; }
@@ -148,7 +151,7 @@
 <header>
   <div class="nav-container">
     <a href="#" class="brand">
-      <div class="brand-mark">B</div>
+      <img src="Bilder_und_Medien/Blackbox-Buecher-Icon.png" alt="Blackbox Bücher Logo" class="brand-logo">[cite: 2]
       <div class="brand-name">Blackbox Bücher</div>
     </a>
     <div class="nav-actions">
@@ -165,7 +168,7 @@
   <div class="hero-banner-overlay"></div>
   <div class="hero-content">
     <h1>Blackbox Bücher</h1>
-    <p>Kein Bock auf langweilige Stangenware.</p>
+    <p>Blackbox Bücher Mikroverlag</p>
   </div>
 </div>
 
@@ -181,7 +184,7 @@
   <div class="footer-links">
     <button id="openImpressumBtn">Impressum</button>
     <button id="openDatenschutzBtn">Datenschutz</button>
-    <a id="openDatenschutzBtn" href="mailto:blackboxbuecher@gmail.com" class="footer-email-link">Kontakt</a>
+    <a href="mailto:blackboxbuecher@gmail.com" class="footer-email-link">Kontakt</a>
   </div>
 </footer>
 
@@ -294,6 +297,7 @@
     </div>
   </div>
 </div>
+
 <!-- DATENSCHUTZ MODAL -->
 <div id="datenschutzModal" class="modal-backdrop">
   <div class="modal modal-legal">
@@ -324,13 +328,6 @@
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPdz3c08RBaXkqE-pYi5p-OpVpbiTYPUjxCW2-CaKXMNWpJiNY-YKoJevvFWjQzgCWxg/exec";
   const SESSION_KEY = 'bb_drive_session_v10';
 
-  /* 
-    
-    'N'
-    'P
-    'J'
-    'Z'
-  */
   let books = [
     {
       id: 'bk-1',
@@ -340,7 +337,7 @@
       genre: 'Satire & Schwarzer Humor',
       cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
       readerPage: 'eBooks/BCeB/eBookred.html',
-      description: 'Black Comedy, 50 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Seid dem 20.11.2026 hir erhältlich.'
+      description: 'Black Comedy, 50 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Seit dem 20.11.2026 hier erhältlich.'
     },
     {
       id: 'bk-2',
@@ -351,7 +348,7 @@
       cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
       readerPage: '#',
       buyUrl: 'https://deine-familienfirma-webseite.de',
-      description: 'Black Comedy, 150 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Ab dem 05.12.2026 hir erhältlich.'
+      description: 'Black Comedy, 150 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Ab dem 05.12.2026 hier erhältlich.'
     }
   ];
 
@@ -503,7 +500,6 @@
       previewActionContainer.appendChild(infoBtn);
     } 
     else if (book.status === 'J') {
-      // Leseprobe Button
       const sampleBtn = document.createElement('a');
       sampleBtn.className = 'btn btn-secondary';
       sampleBtn.style.width = '100%';
@@ -512,7 +508,6 @@
       sampleBtn.target = '_blank';
       previewActionContainer.appendChild(sampleBtn);
 
-      // Kaufen Button (leitet zum Produktlink der Familienfirma weiter)
       const buyBtn = document.createElement('a');
       buyBtn.className = 'btn btn-success';
       buyBtn.style.width = '100%';
