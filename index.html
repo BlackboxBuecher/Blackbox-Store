@@ -1,1 +1,613 @@
-diese projekt ligt auf eis
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blackbox Store</title>
+<meta name="robots" content="index, follow">
+
+<style>
+  :root {
+    --bg-primary: #F5F5F7;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #E5E5EA;
+    --bg-glass: rgba(255, 255, 255, 0.85);
+    --text-primary: #1D1D1F;
+    --text-secondary: #515154;
+    --text-muted: #86868B;
+    --accent-primary: #0066CC;
+    --accent-hover: #0077ED;
+    --success-color: #34C759;
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --hero-fade: linear-gradient(180deg, transparent 0%, rgba(245,245,247,0.85) 80%, #F5F5F7 100%);
+    --card-fade: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.9) 100%);
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #000000;
+      --bg-surface: #1C1C1E;
+      --bg-elevated: #2C2C2E;
+      --bg-glass: rgba(28, 28, 30, 0.85);
+      --text-primary: #F5F5F7;
+      --text-secondary: #AEAEB2;
+      --text-muted: #8E8E93;
+      --accent-primary: #0A84FF;
+      --accent-hover: #409CFF;
+      --success-color: #30D158;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --hero-fade: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 80%, #000000 100%);
+      --card-fade: linear-gradient(180deg, transparent 0%, rgba(28,28,30,0.9) 100%);
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { background-color: var(--bg-primary); color: var(--text-primary); line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
+
+  header { position: sticky; top: 0; z-index: 100; background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-subtle); }
+  .nav-container { max-width: 1100px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
+  .brand-mark { width: 30px; height: 30px; background: var(--text-primary); color: var(--bg-surface); border-radius: 6px; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .brand-name { font-size: 16px; font-weight: 600; }
+
+  .nav-actions { display: flex; align-items: center; gap: 10px; }
+  .profile-btn { display: none; align-items: center; gap: 8px; padding: 6px 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text-primary); cursor: pointer; transition: var(--transition); }
+  .profile-btn:hover { opacity: 0.85; }
+
+  .btn { border: none; cursor: pointer; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 999px; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; }
+  .btn-primary { background: var(--accent-primary); color: #FFF; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-subtle); }
+  .btn-secondary:hover { opacity: 0.85; }
+  .btn-success { background: var(--success-color); color: #FFF; }
+
+  .hero-banner { position: relative; width: 100%; height: 360px; overflow: hidden; display: flex; align-items: flex-end; padding: 40px 24px; background-color: #1A1A1E; }
+  .hero-banner-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(60px); opacity: 0.5; }
+  .hero-banner-overlay { position: absolute; inset: 0; background: var(--hero-fade); }
+  .hero-content { position: relative; max-width: 1100px; width: 100%; margin: 0 auto; z-index: 2; }
+  .hero-content h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 4px; }
+  .hero-content p { font-size: 15px; color: var(--text-secondary); }
+
+  main { max-width: 1100px; width: 100%; margin: 0 auto; padding: 36px 24px 80px; flex: 1; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle); }
+  .section-title { font-size: 18px; font-weight: 600; }
+
+  .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 24px; }
+  .book-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; transition: var(--transition); cursor: pointer; }
+  .book-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+
+  .book-cover { aspect-ratio: 2 / 3; width: 100%; background: var(--bg-elevated); position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; }
+  .book-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .book-cover::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: var(--card-fade); pointer-events: none; }
+  
+  .reading-progress-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); color: #FFF; font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 999px; z-index: 5; }
+
+  .book-body { padding: 16px; display: flex; flex-direction: column; flex: 1; }
+  .book-meta { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .book-title { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .book-author { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .book-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border-subtle); margin-top: auto; }
+  
+  .tag-free { background: rgba(52, 199, 89, 0.16); color: var(--success-color); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+  .tag-owned { background: var(--bg-elevated); color: var(--text-secondary); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+  .tag-soon { background: var(--bg-elevated); color: var(--text-secondary); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 200; opacity: 0; transition: opacity 0.2s; }
+  .modal-backdrop.active { display: flex; opacity: 1; }
+  .modal { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); width: 100%; max-width: 440px; padding: 28px; box-shadow: 0 24px 48px rgba(0,0,0,0.2); }
+  .modal-large { max-width: 720px; display: grid; grid-template-columns: 220px 1fr; gap: 28px; }
+  .modal-legal { max-width: 600px; max-height: 80vh; overflow-y: auto; display: block; }
+  @media(max-width: 650px) { .modal-large { grid-template-columns: 1fr; } }
+  
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .modal-header h2 { font-size: 20px; font-weight: 600; }
+  .close-modal { background: var(--bg-elevated); border: none; color: var(--text-secondary); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+  .form-group input { width: 100%; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; outline: none; }
+  .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-primary); padding: 3px; border-radius: 10px; margin-bottom: 20px; }
+  .auth-tab { background: transparent; border: none; color: var(--text-secondary); padding: 6px; font-size: 12px; font-weight: 500; border-radius: 7px; cursor: pointer; }
+  .auth-tab.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .error-msg { color: #FF3B30; font-size: 12px; margin-bottom: 12px; display: none; }
+
+  footer { border-top: 1px solid var(--border-subtle); padding: 24px; text-align: center; color: var(--text-muted); font-size: 12px; background: var(--bg-surface); }
+  .footer-links { margin-top: 8px; display: flex; gap: 16px; justify-content: center; }
+  .footer-links button { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; text-decoration: underline; }
+  .footer-links button:hover { color: var(--text-primary); }
+
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--text-primary); color: var(--bg-surface); padding: 10px 16px; border-radius: 999px; font-size: 13px; transform: translateY(80px); opacity: 0; transition: var(--transition); z-index: 300; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-container">
+    <a href="#" class="brand">
+      <div class="brand-mark">B</div>
+      <div class="brand-name">Blackbox Store</div>
+    </a>
+    <div class="nav-actions">
+      <button id="profileBtn" class="profile-btn" style="display: none;">
+        <span id="profileNameDisplay"></span>
+      </button>
+      <button id="openAuthBtn" class="btn btn-secondary">Anmelden</button>
+    </div>
+  </div>
+</header>
+
+<div class="hero-banner">
+  <img src="eBooks/BCeB/Black-Comedy-Cover.jpg" alt="" class="hero-banner-bg">
+  <div class="hero-banner-overlay"></div>
+  <div class="hero-content">
+    <h1>Blackbox Store</h1>
+    <p>Blackbox Bücher Mikroverlag.</p>
+  </div>
+</div>
+
+<main>
+  <div class="toolbar">
+    <h2 class="section-title">Verlagsprogramm</h2>
+  </div>
+  <div id="bookGrid" class="book-grid"></div>
+</main>
+
+<footer>
+  <span>© 2026 Blackbox Store</span>
+  <div class="footer-links">
+    <button id="openImpressumBtn">Impressum</button>
+    <button id="openDatenschutzBtn">Datenschutz</button>
+  </div>
+</footer>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="authModalTitle">Anmelden</h2>
+      <button class="close-modal" data-close="authModal">&times;</button>
+    </div>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-mode="login">Anmelden</button>
+      <button type="button" class="auth-tab" data-mode="register">Registrieren</button>
+    </div>
+    <form id="authForm">
+      <div id="authError" class="error-msg"></div>
+      <div class="form-group" id="nameGroup" style="display: none;">
+        <label for="authName">Wie willst du genannt werden?</label>
+        <input type="text" id="authName" placeholder="Dein Anzeigename">
+      </div>
+      <div class="form-group">
+        <label for="authEmail">E-Mail-Adresse</label>
+        <input type="email" id="authEmail" required placeholder="name@domain.de">
+      </div>
+      <div class="form-group">
+        <label for="authPassword">Passwort</label>
+        <input type="password" id="authPassword" required placeholder="••••••••">
+      </div>
+      <div class="form-group" id="confirmPasswordGroup" style="display: none;">
+        <label for="authPasswordConfirm">Passwort bestätigen</label>
+        <input type="password" id="authPasswordConfirm" placeholder="••••••••">
+      </div>
+      <button type="submit" id="authSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Anmelden</button>
+    </form>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div id="profileModal" class="modal-backdrop">
+  <div class="modal" style="max-width: 400px;">
+    <div class="modal-header">
+      <h2>Benutzerprofil</h2>
+      <button class="close-modal" data-close="profileModal">&times;</button>
+    </div>
+    <div style="font-size: 14px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+      <div><strong>Name:</strong> <span id="modalProfileName"></span></div>
+      <div><strong>E-Mail:</strong> <span id="modalProfileEmail"></span></div>
+      <div><strong>Beigetreten am:</strong> <span id="modalProfileJoined"></span></div>
+    </div>
+    <button id="confirmLogoutBtn" class="btn btn-secondary" style="width: 100%; background: rgba(255,59,48,0.1); color: #FF3B30; border: none;">Abmelden</button>
+  </div>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div id="previewModal" class="modal-backdrop">
+  <div class="modal modal-large">
+    <div id="previewCoverContainer" style="border-radius: 10px; min-height: 300px; position:relative; overflow:hidden; background:var(--bg-elevated);"></div>
+    <div style="display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 12px;">
+          <div>
+            <span id="previewGenre" style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase;"></span>
+            <h2 id="previewTitle" style="font-size: 22px; font-weight: 600; margin-top: 2px;"></h2>
+            <div id="previewAuthor" style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;"></div>
+          </div>
+          <button class="close-modal" data-close="previewModal">&times;</button>
+        </div>
+        <p id="previewDesc" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; max-height: 140px; overflow-y: auto;"></p>
+      </div>
+      <div id="previewActionContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPRESSUM MODAL -->
+<div id="impressumModal" class="modal-backdrop">
+  <div class="modal modal-legal">
+    <div class="modal-header">
+      <h2>Impressum</h2>
+      <button class="close-modal" data-close="impressumModal">&times;</button>
+    </div>
+    <div style="font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 10px;">
+      <div>
+        <h3 style="font-size: 14px; color: var(--text-primary); margin-bottom: 2px;">Angaben gemäß § 5 DDG (Telemediengesetz)</h3>
+        <p>
+          [Dein Vor- und Nachname / Firmenname]<br>
+          [Straße und Hausnummer]<br>
+          [PLZ und Ort]
+        </p>
+      </div>
+      <div>
+        <h3 style="font-size: 14px; color: var(--text-primary); margin-bottom: 2px;">Kontakt</h3>
+        <p>
+          E-Mail: [Deine E-Mail-Adresse]<br>
+          Telefon: [Deine Telefonnummer - optional]
+        </p>
+      </div>
+      <div>
+        <h3 style="font-size: 14px; color: var(--text-primary); margin-bottom: 2px;">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h3>
+        <p>[Dein Name und Anschrift wie oben]</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATENSCHUTZ MODAL -->
+<div id="datenschutzModal" class="modal-backdrop">
+  <div class="modal modal-legal">
+    <div class="modal-header">
+      <h2>Datenschutzerklärung</h2>
+      <button class="close-modal" data-close="datenschutzModal">&times;</button>
+    </div>
+    <div style="font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 10px;">
+      <div>
+        <h3 style="font-size: 14px; color: var(--text-primary); margin-bottom: 2px;">1. Datenschutz auf einen Blick</h3>
+        <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen.</p>
+      </div>
+      <div>
+        <h3 style="font-size: 14px; color: var(--text-primary); margin-bottom: 2px;">2. Datenerfassung und Registrierung</h3>
+        <p>Wenn Sie sich registrieren oder ein Buch freischalten, speichern wir Ihre E-Mail, den Anzeigenamen, Ihr Passwort sowie den Status Ihrer freigeschalteten Inhalte.</p>
+      </div>
+      <div>
+        <h3 style="font-size: 14px; color: var(--text-primary); margin-bottom: 2px;">3. Google Apps Script / Google Drive</h3>
+        <p>Zur Verwaltung der Benutzer und Freischaltungen nutzen wir einen Web-Service auf Basis von Google Apps Script, welcher die Daten sicher in einer Google-Tabelle verarbeitet.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPdz3c08RBaXkqE-pYi5p-OpVpbiTYPUjxCW2-CaKXMNWpJiNY-YKoJevvFWjQzgCWxg/exec";
+  const SESSION_KEY = 'bb_drive_session_v7';
+
+  let books = [
+    {
+      id: 'bk-1',
+      title: 'Black Comedy – 50 geile Geschichten',
+      author: 'Matteo Neumann',
+      genre: 'Satire & Schwarzer Humor',
+      price: 0,
+      cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
+      readerPage: 'eBooks/BCeB/eBookred.html',
+      description: 'Fünfzig rabenschwarze Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen.'
+    },
+    {
+      id: 'bk-2',
+      title: 'Black Comedy 150 geile Geschichten',
+      author: 'Matteo Neumann',
+      genre: 'Satire & Schwarzer Humor',
+      price: 9.99,
+      cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
+      readerPage: '#',
+      description: 'Die erweiterte Sammlung mit 150 rabenschwarzen Kurzgeschichten.'
+    }
+  ];
+
+  let currentUser = JSON.parse(localStorage.getItem(SESSION_KEY)) || null;
+  let authMode = 'login';
+
+  const bookGrid = document.getElementById('bookGrid');
+  const openAuthBtn = document.getElementById('openAuthBtn');
+  const profileBtn = document.getElementById('profileBtn');
+  const profileNameDisplay = document.getElementById('profileNameDisplay');
+  const authModal = document.getElementById('authModal');
+  const profileModal = document.getElementById('profileModal');
+  const previewModal = document.getElementById('previewModal');
+  const impressumModal = document.getElementById('impressumModal');
+  const datenschutzModal = document.getElementById('datenschutzModal');
+  const authForm = document.getElementById('authForm');
+  const authError = document.getElementById('authError');
+  const authModalTitle = document.getElementById('authModalTitle');
+  const authSubmitBtn = document.getElementById('authSubmitBtn');
+  const nameGroup = document.getElementById('nameGroup');
+  const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+  const previewCoverContainer = document.getElementById('previewCoverContainer');
+  const previewTitle = document.getElementById('previewTitle');
+  const previewAuthor = document.getElementById('previewAuthor');
+  const previewGenre = document.getElementById('previewGenre');
+  const previewDesc = document.getElementById('previewDesc');
+  const previewActionContainer = document.getElementById('previewActionContainer');
+  const toast = document.getElementById('toast');
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  async function callDriveBackend(payload) {
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      return await response.json();
+    } catch (err) {
+      console.error(err);
+      return { success: false, error: "Netzwerkfehler zur Google-Tabelle." };
+    }
+  }
+
+  function updateAuthUI() {
+    if (currentUser) {
+      openAuthBtn.style.display = 'none';
+      profileBtn.style.display = 'inline-flex';
+      profileNameDisplay.textContent = currentUser.name || currentUser.email.split('@')[0];
+    } else {
+      openAuthBtn.style.display = 'inline-flex';
+      profileBtn.style.display = 'none';
+    }
+    renderBooks();
+  }
+
+  function renderBooks() {
+    bookGrid.innerHTML = '';
+    const purchases = (currentUser && currentUser.purchases) || [];
+    const progressMap = (currentUser && currentUser.progress) || {};
+
+    books.forEach(book => {
+      const card = document.createElement('article');
+      card.className = 'book-card';
+      const progress = progressMap[book.id] || 0;
+      const isOwned = purchases.includes(book.id);
+
+      const progressBadge = progress > 0 
+        ? `<div class="reading-progress-badge">${progress}% gelesen</div>` 
+        : '';
+
+      let priceTagHtml = '';
+      if (isOwned) {
+        priceTagHtml = `<span class="tag-owned">Freigeschaltet</span>`;
+      } else if (book.price <= 0) {
+        priceTagHtml = `<span class="tag-free">Free</span>`;
+      } else {
+        priceTagHtml = `<span class="tag-soon">Bald verfügbar</span>`;
+      }
+
+      card.innerHTML = `
+        <div class="book-cover">
+          ${progressBadge}
+          <img src="${book.cover}" alt="${book.title}">
+        </div>
+        <div class="book-body">
+          <div class="book-meta">${book.genre}</div>
+          <h3 class="book-title">${book.title}</h3>
+          <div class="book-author">${book.author}</div>
+          <div class="book-footer">
+            ${priceTagHtml}
+          </div>
+        </div>
+      `;
+      card.onclick = () => openPreview(book);
+      bookGrid.appendChild(card);
+    });
+  }
+
+  function openPreview(book) {
+    previewTitle.textContent = book.title;
+    previewAuthor.textContent = `von ${book.author}`;
+    previewGenre.textContent = book.genre;
+    previewDesc.textContent = book.description;
+    previewCoverContainer.innerHTML = `<img src="${book.cover}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" alt="">`;
+
+    previewActionContainer.innerHTML = '';
+    const isOwned = currentUser && (currentUser.purchases || []).includes(book.id);
+
+    if (book.price > 0) {
+      const infoBtn = document.createElement('button');
+      infoBtn.className = 'btn btn-secondary';
+      infoBtn.style.width = '100%';
+      infoBtn.style.cursor = 'default';
+      infoBtn.textContent = 'Bald verfügbar';
+      previewActionContainer.appendChild(infoBtn);
+    } else if (!isOwned) {
+      const buyBtn = document.createElement('button');
+      buyBtn.className = 'btn btn-success';
+      buyBtn.style.width = '100%';
+      buyBtn.textContent = 'Kostenlos freischalten';
+      buyBtn.onclick = async () => {
+        if (!currentUser) {
+          closeModal(previewModal);
+          openModal(authModal);
+          showToast('Bitte melde dich kurz an, um fortzufahren.');
+          return;
+        }
+        if (!currentUser.purchases.includes(book.id)) {
+          currentUser.purchases.push(book.id);
+        }
+        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        await callDriveBackend({
+          action: 'sync',
+          email: currentUser.email,
+          purchases: currentUser.purchases
+        });
+        showToast('Erfolgreich freigeschaltet!');
+        openPreview(book);
+        renderBooks();
+      };
+      previewActionContainer.appendChild(buyBtn);
+    } else {
+      const readBtn = document.createElement('a');
+      readBtn.className = 'btn btn-primary';
+      readBtn.style.width = '100%';
+      readBtn.textContent = '📖 Im Browser lesen';
+      readBtn.href = book.readerPage;
+      readBtn.target = '_blank';
+      previewActionContainer.appendChild(readBtn);
+
+      const disabledBuyBtn = document.createElement('button');
+      disabledBuyBtn.className = 'btn btn-secondary';
+      disabledBuyBtn.style.width = '100%';
+      disabledBuyBtn.style.opacity = '0.6';
+      disabledBuyBtn.style.cursor = 'default';
+      disabledBuyBtn.textContent = 'Bereits freigeschaltet';
+      previewActionContainer.appendChild(disabledBuyBtn);
+    }
+
+    openModal(previewModal);
+  }
+
+  function openModal(modal) { modal.classList.add('active'); }
+  function closeModal(modal) { modal.classList.remove('active'); }
+
+  document.querySelectorAll('.close-modal, [data-close]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-close');
+      if (targetId) closeModal(document.getElementById(targetId));
+    });
+  });
+
+  document.getElementById('openImpressumBtn').onclick = () => openModal(impressumModal);
+  document.getElementById('openDatenschutzBtn').onclick = () => openModal(datenschutzModal);
+
+  openAuthBtn.onclick = () => { authError.style.display = 'none'; openModal(authModal); };
+  profileBtn.onclick = () => {
+    document.getElementById('modalProfileName').textContent = currentUser.name;
+    document.getElementById('modalProfileEmail').textContent = currentUser.email;
+    document.getElementById('modalProfileJoined').textContent = currentUser.joined || 'Unbekannt';
+    openModal(profileModal);
+  };
+
+  document.getElementById('confirmLogoutBtn').onclick = () => {
+    currentUser = null;
+    localStorage.removeItem(SESSION_KEY);
+    closeModal(profileModal);
+    updateAuthUI();
+    showToast('Erfolgreich abgemeldet.');
+  };
+
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      authMode = tab.getAttribute('data-mode');
+      if (authMode === 'register') {
+        authModalTitle.textContent = 'Registrieren';
+        authSubmitBtn.textContent = 'Registrieren';
+        nameGroup.style.display = 'block';
+        confirmPasswordGroup.style.display = 'block';
+      } else {
+        authModalTitle.textContent = 'Anmelden';
+        authSubmitBtn.textContent = 'Anmelden';
+        nameGroup.style.display = 'none';
+        confirmPasswordGroup.style.display = 'none';
+      }
+      authError.style.display = 'none';
+    });
+  });
+
+  authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    authError.style.display = 'none';
+    authSubmitBtn.disabled = true;
+    const originalText = authSubmitBtn.textContent;
+    authSubmitBtn.textContent = 'Verarbeite...';
+
+    try {
+      if (authMode === 'register') {
+        const name = document.getElementById('authName').value.trim() || email.split('@')[0];
+        const passwordConfirm = document.getElementById('authPasswordConfirm').value;
+
+        if (password !== passwordConfirm) {
+          authError.textContent = 'Die Passwörter stimmen nicht überein.';
+          authError.style.display = 'block';
+          authSubmitBtn.disabled = false;
+          authSubmitBtn.textContent = originalText;
+          return;
+        }
+
+        const res = await callDriveBackend({
+          action: 'register',
+          email: email,
+          password: password,
+          name: name
+        });
+
+        if (!res.success) {
+          authError.textContent = res.error || 'Registrierung fehlgeschlagen.';
+          authError.style.display = 'block';
+          authSubmitBtn.disabled = false;
+          authSubmitBtn.textContent = originalText;
+          return;
+        }
+
+        currentUser = res.user;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        closeModal(authModal);
+        authForm.reset();
+        updateAuthUI();
+        showToast(`Willkommen, ${name}!`);
+      } else {
+        const res = await callDriveBackend({
+          action: 'login',
+          email: email,
+          password: password
+        });
+
+        if (!res.success) {
+          authError.textContent = res.error || 'Anmeldung fehlgeschlagen.';
+          authError.style.display = 'block';
+          authSubmitBtn.disabled = false;
+          authSubmitBtn.textContent = originalText;
+          return;
+        }
+
+        currentUser = res.user;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        closeModal(authModal);
+        authForm.reset();
+        updateAuthUI();
+        showToast(`Willkommen zurück, ${currentUser.name}!`);
+      }
+    } catch (err) {
+      authError.textContent = 'Verbindungsfehler zur Google-Tabelle.';
+      authError.style.display = 'block';
+    } finally {
+      authSubmitBtn.disabled = false;
+      authSubmitBtn.textContent = originalText;
+    }
+  });
+
+  updateAuthUI();
+</script>
+</body>
+</html>
