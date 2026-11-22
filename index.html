@@ -9,8 +9,8 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1D1D1F">
 
-<link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png" media="(prefers-color-scheme: light)">
-<link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.jpg" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.jpg" media="(prefers-color-scheme: dark)">
 
 <style>
   :root {
@@ -162,7 +162,7 @@
   .error-msg { color: #FF3B30; font-size: 12px; margin-bottom: 14px; display: none; font-weight: 500; }
 
   footer { border-top: 1px solid var(--border-subtle); padding: 32px 24px; text-align: center; color: var(--text-muted); font-size: 12px; background: var(--bg-surface); }
-  .footer-links { margin-top: 10px; display: flex; gap: 20px; justify-content: center; }
+  .footer-links { margin-top: 10px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
   .footer-links button, .footer-links a { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-decoration: none; transition: color 0.2s; font-weight: 500; }
   .footer-links button:hover, .footer-links a:hover { color: var(--text-primary); text-decoration: underline; }
 
@@ -175,7 +175,7 @@
 <header>
   <div class="nav-container">
     <a href="#" class="brand">
-      <img src="Bilder_und_Medien/Blackbox-Buecher-Icon.png" alt="Blackbox Bücher Logo" class="brand-logo">
+      <img src="Bilder_und_Medien/Blackbox-Buecher-Icon.jpg" alt="Blackbox Bücher Logo" class="brand-logo">
       <div class="brand-name">Blackbox Bücher</div>
     </a>
     <div class="nav-actions">
@@ -192,15 +192,15 @@
   <div class="hero-grid">
     <div>
       <div class="hero-eyebrow">eBook</div>
-      <h1>Blackbox Comedy</h1>
-      <p>Black Comedy 50 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Seit dem 20.11.2026 hier erhältlich.</p>
+      <h1 id="heroTitle">Blackbox Comedy</h1>
+      <p id="heroDesc">Black Comedy 50 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Seit dem 20.11.2026 hier erhältlich.</p>
       <div class="hero-cta-group">
         <button id="heroFeaturedBtn" class="btn btn-primary">Buch lesen</button>
       </div>
     </div>
     <div class="hero-featured">
       <div class="featured-book-mockup" id="featuredCoverTrigger" title="Aktuelle Ausgabe ansehen">
-        <img src="eBooks/BCeB/Black-Comedy-Cover.jpg" alt="Black Comedy Cover">
+        <img id="heroCoverImg" src="eBooks/BCeB/Black-Comedy-Cover.jpg" alt="Black Comedy Cover">
       </div>
     </div>
   </div>
@@ -222,6 +222,7 @@
     <button id="openImpressumBtn">Impressum</button>
     <button id="openDatenschutzBtn">Datenschutz</button>
     <a href="mailto:blackboxbuecher@gmail.com">Kontakt</a>
+    <a href="admin.html">Verwaltung</a>
   </div>
 </footer>
 
@@ -337,7 +338,7 @@
       </div>
       <div>
         <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">2. Datenerfassung</h3>
-        <p>Wenn Sie sich registrieren, speichern wir Ihren Benutzernamen und Ihr Passwort zur Verwaltung Ihrer Lesefortschritte.</p>
+        <p>Wenn Sie sich registrieren, speichern wir Ihren Benutzernamen und Ihr Passwort (verschlüsselt) über Google Apps Script zur Verwaltung Ihrer Lesefortschritte gemäß Art. 6 Abs. 1 lit. b DSGVO.</p>
       </div>
     </div>
   </div>
@@ -346,44 +347,14 @@
 <div id="toast" class="toast"></div>
 
 <script>
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPdz3c08RBaXkqE-pYi5p-OpVpbiTYPUjxCW2-CaKXMNWpJiNY-YKoJevvFWjQzgCWxg/exec";
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4EDtJo07Vx-_wNgjuhVxsAqKg8VXXs2SP-TFiaMDiN4GY0OqnED_nV8uV6eVWGWb8/exec";
   const SESSION_KEY = 'bb_drive_session_v11';
 
-  let books = [
-    {
-      id: 'bk-1',
-      status: 'N',
-      title: 'Black Comedy – 50 geile Geschichten',
-      author: 'Matteo Neumann',
-      genre: 'Satire & Schwarzer Humor',
-      cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
-      readerPage: 'eBooks/BCeB/eBookred.html',
-      description: '50 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Seit dem 20.11.2026 hier erhältlich.'
-    },
-    {
-      id: 'bk-2',
-      status: 'P',
-      title: 'Black Comedy 150 geile Geschichten',
-      author: 'Matteo Neumann',
-      genre: 'Satire & Schwarzer Humor',
-      cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
-      readerPage: '#',
-      buyUrl: 'https://deine-familienfirma-webseite.de',
-      description: '150 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Ab dem 10.12.2026 hier erhältlich.'
-    },
-    {
-      id: 'bk-3',
-      status: 'P',
-      title: 'Black Witz 1001 dunkele Witze',
-      author: 'Matteo Neumann',
-      genre: 'Satire & Schwarzer Humor',
-      cover: 'BWeB/Black-Witz-Cover.jpg',
-      readerPage: '#',
-      buyUrl: 'https://deine-familienfirma-webseite.de',
-      description: '1001 dunkele Witze. Ab dem 20.12.2026 hier erhältlich.'
-    }
+  const defaultBooks = [
   ];
 
+  let books = [...defaultBooks];
+  let featuredBook = books[0];
   let currentUser = JSON.parse(localStorage.getItem(SESSION_KEY)) || null;
   let authMode = 'login';
   let activeBookForPassword = null;
@@ -435,6 +406,24 @@
     }
   }
 
+  async function loadBooksFromDatabase() {
+    const res = await callDriveBackend({ action: 'getBooks' });
+    if (res && res.success && Array.isArray(res.books) && res.books.length > 0) {
+      books = res.books;
+    }
+    updateHeroSection();
+    renderBooks();
+  }
+
+  function updateHeroSection() {
+    if (books.length === 0) return;
+    featuredBook = books.find(b => b.isFeatured === true || b.isFeatured === "true" || b.isFeatured === "TRUE") || books[0];
+    document.getElementById('heroTitle').textContent = featuredBook.title;
+    document.getElementById('heroDesc').textContent = featuredBook.description;
+    document.getElementById('heroCoverImg').src = featuredBook.cover;
+    document.getElementById('heroCoverImg').alt = featuredBook.title;
+  }
+
   function updateAuthUI() {
     if (currentUser) {
       openAuthBtn.style.display = 'none';
@@ -453,7 +442,7 @@
     const progressMap = (currentUser && currentUser.progress) || {};
 
     const filteredBooks = books.filter(book => {
-      const matchesSearch = book.title.toLowerCase().includes(currentSearch) || book.genre.toLowerCase().includes(currentSearch);
+      const matchesSearch = (book.title || '').toLowerCase().includes(currentSearch) || (book.genre || '').toLowerCase().includes(currentSearch);
       return matchesSearch;
     });
 
@@ -469,11 +458,12 @@
 
       let statusTagHtml = '';
       if (book.status === 'N') {
-        statusTagHtml = isOwned ? `<span class="tag-owned">Freigeschaltet</span>` : `<span class="tag-free">Free</span>`;
+        statusTagHtml = isOwned ? `<span class="tag-owned">Freigeschaltet</span>` : `<span class="tag-free">Kostenlos</span>`;
       } else if (book.status === 'P') {
-        statusTagHtml = `<span class="tag-soon">Bald verfügbar</span>`;
+        statusTagHtml = `<span class="tag-soon">In Entwicklung</span>`;
       } else if (book.status === 'J') {
-        statusTagHtml = `<span class="tag-buy">Kaufbar</span>`;
+        const priceLabel = book.price ? `${book.price}` : 'Kostenpflichtig';
+        statusTagHtml = `<span class="tag-buy">${priceLabel}</span>`;
       } else if (book.status === 'Z') {
         statusTagHtml = `<span class="tag-secret">Geschützt</span>`;
       }
@@ -500,12 +490,11 @@
     });
   }
 
-  // Hero-Shortcuts für Buch 1
   document.getElementById('heroFeaturedBtn').onclick = () => {
-    if (books.length > 0) handleBookClick(books[0]);
+    if (featuredBook) handleBookClick(featuredBook);
   };
   document.getElementById('featuredCoverTrigger').onclick = () => {
-    if (books.length > 0) handleBookClick(books[0]);
+    if (featuredBook) handleBookClick(featuredBook);
   };
 
   searchInput.addEventListener('input', (e) => {
@@ -550,23 +539,25 @@
       infoBtn.className = 'btn btn-secondary';
       infoBtn.style.width = '100%';
       infoBtn.style.cursor = 'default';
-      infoBtn.textContent = 'Bald verfügbar';
+      infoBtn.textContent = 'In Entwicklung – Bald verfügbar';
       previewActionContainer.appendChild(infoBtn);
     } 
     else if (book.status === 'J') {
-      const sampleBtn = document.createElement('a');
-      sampleBtn.className = 'btn btn-secondary';
-      sampleBtn.style.width = '100%';
-      sampleBtn.textContent = 'Leseprobe';
-      sampleBtn.href = book.readerPage;
-      sampleBtn.target = '_blank';
-      previewActionContainer.appendChild(sampleBtn);
+      if (book.readerPage && book.readerPage !== '#') {
+        const sampleBtn = document.createElement('a');
+        sampleBtn.className = 'btn btn-secondary';
+        sampleBtn.style.width = '100%';
+        sampleBtn.textContent = 'Leseprobe ansehen';
+        sampleBtn.href = book.readerPage;
+        sampleBtn.target = '_blank';
+        previewActionContainer.appendChild(sampleBtn);
+      }
 
       const buyBtn = document.createElement('a');
       buyBtn.className = 'btn btn-success';
       buyBtn.style.width = '100%';
-      buyBtn.textContent = '🛒 Kaufen (Familienunternehmen)';
-      buyBtn.href = book.buyUrl || '#';
+      buyBtn.textContent = book.price ? `🛒 Kaufen (${book.price})` : '🛒 Jetzt kaufen';
+      buyBtn.href = book.buyUrl || book.readerPage || '#';
       buyBtn.target = '_blank';
       previewActionContainer.appendChild(buyBtn);
     } 
@@ -574,7 +565,7 @@
       const readBtn = document.createElement('a');
       readBtn.className = 'btn btn-primary';
       readBtn.style.width = '100%';
-      readBtn.textContent = '📖 Buch im Browser lesen';
+      readBtn.textContent = '📖 Buch lesen';
       readBtn.href = book.readerPage;
       readBtn.target = '_blank';
       previewActionContainer.appendChild(readBtn);
@@ -704,6 +695,7 @@
   });
 
   updateAuthUI();
+  loadBooksFromDatabase();
 </script>
 </body>
 </html>
