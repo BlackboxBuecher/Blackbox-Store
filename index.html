@@ -9,8 +9,8 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1D1D1F">
 
-<link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png" media="(prefers-color-scheme: light)">
-<link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" href="Bilder_und_Medien/ebooks-buecher-icon.png" media="(prefers-color-scheme: light)">
+<link rel="icon" type="image/png" href="Bilder_und_Medien/ebooks-buecher-icon.png" media="(prefers-color-scheme: dark)">
 
 <style>
   :root {
@@ -24,6 +24,7 @@
     --accent-primary: #0066CC;
     --accent-hover: #0052A3;
     --success-color: #248A3D;
+    --danger-color: #FF3B30;
     --border-subtle: rgba(0, 0, 0, 0.08);
     --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.04);
     --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.08);
@@ -46,6 +47,7 @@
       --accent-primary: #0A84FF;
       --accent-hover: #409CFF;
       --success-color: #30D158;
+      --danger-color: #FF453A;
       --border-subtle: rgba(255, 255, 255, 0.1);
       --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.3);
       --shadow-md: 0 20px 48px rgba(0, 0, 0, 0.6);
@@ -54,7 +56,26 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
-  body { background-color: var(--bg-primary); color: var(--text-primary); line-height: 1.55; min-height: 100vh; display: flex; flex-direction: column; }
+  
+  body { 
+    background-color: var(--bg-primary); 
+    color: var(--text-primary); 
+    line-height: 1.55; 
+    min-height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+  }
+
+  .page-content-wrapper {
+    filter: blur(10px);
+    transition: filter 1s cubic-bezier(0.16, 1, 0.3, 1);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  body.loaded .page-content-wrapper {
+    filter: blur(0px);
+  }
 
   header { position: sticky; top: 0; z-index: 100; background: var(--bg-glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--border-subtle); }
   .nav-container { max-width: 1180px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
@@ -63,10 +84,14 @@
   .brand-name { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
 
   .nav-actions { display: flex; align-items: center; gap: 10px; }
-  .profile-btn { display: none; align-items: center; gap: 8px; padding: 7px 15px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--text-primary); cursor: pointer; transition: var(--transition-smooth); }
-  .profile-btn:hover { opacity: 0.85; transform: scale(1.02); }
+  
+  .profile-trigger { display: none; align-items: center; gap: 10px; padding: 5px 14px 5px 5px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 999px; cursor: pointer; transition: var(--transition-smooth); }
+  .profile-trigger:hover { opacity: 0.85; transform: scale(1.02); }
+  .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #8E8E93; color: #FFF; display: grid; place-items: center; font-size: 13px; font-weight: 700; overflow: hidden; flex-shrink: 0; }
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-username-text { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 
-  .btn { border: none; cursor: pointer; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 999px; transition: var(--transition-smooth); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+  .btn { border: none; cursor: pointer; font-size: 13px; font-weight: 600; padding: 11px 20px; border-radius: 999px; transition: var(--transition-smooth); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
   .btn-primary { background: var(--accent-primary); color: #FFF; }
   .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3); }
   .btn-secondary { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-subtle); }
@@ -82,7 +107,7 @@
   .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-primary); margin-bottom: 14px; }
   .hero-eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-primary); }
   .hero-stage h1 { font-size: clamp(34px, 5vw, 54px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.06; margin-bottom: 16px; }
-  .hero-stage p { font-size: 17px; color: var(--text-secondary); max-width: 520px; line-height: 1.6; margin-bottom: 28px; }
+  .hero-stage p { font-size: 17px; color: var(--text-secondary); max-width: 540px; line-height: 1.6; margin-bottom: 28px; }
   @media(max-width: 820px) { .hero-stage p { margin-inline: auto; } }
 
   .hero-cta-group { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -94,7 +119,7 @@
   .featured-book-mockup img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .featured-book-mockup::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0.22) 0%, rgba(0,0,0,0.12) 4%, transparent 10%); pointer-events: none; }
 
-  main { max-width: 1180px; width: 100%; margin: 0 auto; padding: 48px 28px 96px; flex: 1; }
+  main { max-width: 1180px; width: 100%; margin: 0 auto; padding: 48px 28px 96px; }
   .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
   .section-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
 
@@ -129,34 +154,54 @@
   .tag-secret { background: rgba(255, 159, 10, 0.14); color: #FF9F0A; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
 
   .modal-backdrop { 
-    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); 
-    display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 200; 
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.52); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); 
+    display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 300; 
     visibility: hidden; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s; 
+    overflow-y: auto;
   }
   .modal-backdrop.active { visibility: visible; opacity: 1; }
   
   .modal { 
     background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); 
-    width: 100%; max-width: 440px; padding: 32px; box-shadow: var(--shadow-md); 
+    width: 100%; max-width: 480px; max-height: calc(100vh - 32px); overflow-y: auto; padding: 28px; box-shadow: var(--shadow-md); 
     transform: scale(0.95) translateY(12px); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s; opacity: 0;
   }
   .modal-backdrop.active .modal { transform: scale(1) translateY(0); opacity: 1; }
 
-  .modal-large { max-width: 740px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
-  .modal-legal { max-width: 620px; max-height: 80vh; overflow-y: auto; display: block; }
-  @media(max-width: 680px) { .modal-large { grid-template-columns: 1fr; } }
+  .modal-large { max-width: 860px; display: grid; grid-template-columns: 260px 1fr; gap: 28px; }
+  .modal-legal { max-width: 620px; }
   
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
-  .modal-header h2 { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
-  .close-modal { background: var(--bg-elevated); border: none; color: var(--text-secondary); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; transition: var(--transition-smooth); }
+  @media(max-width: 768px) { 
+    .modal-large { grid-template-columns: 1fr; max-width: 100%; } 
+    .modal { padding: 20px; }
+  }
+  
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .modal-header h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+  .close-modal { background: var(--bg-elevated); border: none; color: var(--text-secondary); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; transition: var(--transition-smooth); flex-shrink: 0; }
   .close-modal:hover { background: var(--border-subtle); color: var(--text-primary); transform: scale(1.06); }
 
-  .form-group { margin-bottom: 16px; }
+  .profile-hero-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding-bottom: 18px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px; }
+  .profile-avatar-wrapper { position: relative; width: 80px; height: 80px; border-radius: 50%; cursor: pointer; overflow: hidden; box-shadow: var(--shadow-md); border: 3px solid var(--bg-elevated); transition: var(--transition-smooth); margin-bottom: 10px; }
+  .profile-avatar-wrapper:hover { transform: scale(1.04); border-color: var(--accent-primary); }
+  .profile-avatar-wrapper::after { content: "Ändern"; position: absolute; inset: 0; background: rgba(0,0,0,0.55); color: #FFF; font-size: 11px; font-weight: 700; display: grid; place-items: center; opacity: 0; transition: opacity 0.2s; }
+  .profile-avatar-wrapper:hover::after { opacity: 1; }
+  .profile-display-name { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
+  .profile-display-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .profile-info-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .profile-info-row { display: flex; justify-content: space-between; align-items: center; background: var(--bg-primary); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 13px; }
+  .profile-info-label { color: var(--text-secondary); font-weight: 500; }
+  .profile-info-value { color: var(--text-primary); font-weight: 600; text-align: right; }
+  .status-pill { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+  .status-pill-yes { background: rgba(48, 209, 88, 0.15); color: var(--success-color); }
+
+  .form-group { margin-bottom: 14px; }
   .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
   .form-group input { width: 100%; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 14px; outline: none; transition: border-color 0.2s; }
   .form-group input:focus { border-color: var(--accent-primary); }
   
-  .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-primary); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 22px; border: 1px solid var(--border-subtle); }
+  .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-primary); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 18px; border: 1px solid var(--border-subtle); }
   .auth-tab { background: transparent; border: none; color: var(--text-secondary); padding: 7px; font-size: 13px; font-weight: 600; border-radius: 7px; cursor: pointer; transition: var(--transition-smooth); }
   .auth-tab.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: var(--shadow-sm); }
   .error-msg { color: #FF3B30; font-size: 12px; margin-bottom: 14px; display: none; font-weight: 500; }
@@ -166,7 +211,7 @@
   .footer-links button, .footer-links a { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-decoration: none; transition: color 0.2s; font-weight: 500; }
   .footer-links button:hover, .footer-links a:hover { color: var(--text-primary); text-decoration: underline; }
 
-  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--text-primary); color: var(--bg-surface); padding: 13px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; transform: translateY(100px); opacity: 0; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s; z-index: 300; box-shadow: var(--shadow-md); }
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--text-primary); color: var(--bg-surface); padding: 13px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; transform: translateY(100px); opacity: 0; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s; z-index: 400; box-shadow: var(--shadow-md); }
   .toast.show { transform: translateY(0); opacity: 1; }
 </style>
 </head>
@@ -175,56 +220,78 @@
 <header>
   <div class="nav-container">
     <a href="#" class="brand">
-      <img src="Bilder_und_Medien/Blackbox-Buecher-Icon.png" alt="Blackbox Bücher Logo" class="brand-logo">
+      <img src="Bilder_und_Medien/-buecher-icon.png" alt="Blackbox Bücher Logo" class="brand-logo">
       <div class="brand-name">Blackbox Bücher</div>
     </a>
     <div class="nav-actions">
-      <button id="profileBtn" class="profile-btn" style="display: none;">
-        <span id="profileNameDisplay"></span>
+      <button id="profileTrigger" class="profile-trigger" style="display: none;">
+        <div id="navUserAvatar" class="user-avatar"></div>
+        <span id="navUsernameDisplay" class="profile-username-text"></span>
       </button>
       <button id="openAuthBtn" class="btn btn-secondary">Anmelden</button>
     </div>
   </div>
 </header>
 
-<section class="hero-stage">
-  <div class="hero-glow"></div>
-  <div class="hero-grid">
-    <div>
-      <div class="hero-eyebrow">eBook</div>
-      <h1 id="heroTitle">wird geladen...</h1>
-      <p id="heroDesc">wird geladen...</p>
-      <div class="hero-cta-group">
-        <button id="heroFeaturedBtn" class="btn btn-primary">Buch lesen</button>
+<div class="page-content-wrapper">
+  <section class="hero-stage">
+    <div class="hero-glow"></div>
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow"></div>
+        <h1 id="heroTitle"></h1>
+        <p id="heroDesc"></p>
+        <div class="hero-cta-group">
+          <button id="heroFeaturedBtn" class="btn btn-primary">Haupttitel lesen</button>
+        </div>
+      </div>
+      <div class="hero-featured">
+        <div class="featured-book-mockup" id="featuredCoverTrigger" title="Aktuelle Ausgabe ansehen">
+          <img id="heroCoverImg" src="eBooks/BCeB/Black-Comedy-Cover.jpg" alt="Black Comedy Cover">
+        </div>
       </div>
     </div>
-    <div class="hero-featured">
-      <div class="featured-book-mockup" id="featuredCoverTrigger" title="Aktuelle Ausgabe ansehen">
-        <img id="heroCoverImg" src="" alt="">
+  </section>
+
+  <main id="programm">
+    <div class="toolbar">
+      <h2 class="section-title">Unser eBook-Katalog</h2>
+      <div class="filter-controls">
+        <input type="search" id="searchInput" class="search-input" placeholder="Titel oder Genre suchen...">
       </div>
     </div>
-  </div>
-</section>
+    <div id="bookGrid" class="book-grid"></div>
+  </main>
 
-<main id="programm">
-  <div class="toolbar">
-    <h2 class="section-title">eBooks</h2>
-    <div class="filter-controls">
-      <input type="search" id="searchInput" class="search-input" placeholder="Titel suchen...">
+  <footer>
+    <span>© 2026 Blackbox Bücher Mikroverlag. Alle Rechte vorbehalten.</span>
+    <div class="footer-links">
+      <button id="openImpressumBtn">Impressum</button>
+      <button id="openDatenschutzBtn">Datenschutz & Cookies</button>
+      <button id="openNutzungsbedingungenBtn">Nutzungsbedingungen</button>
+      <a href="mailto:blackboxbuecher@gmail.com">Kontakt</a>
+      <a href="admin.html">Verwaltung</a>
     </div>
-  </div>
-  <div id="bookGrid" class="book-grid"></div>
-</main>
+  </footer>
+</div>
 
-<footer>
-  <span>© 2026 Blackbox Bücher Mikroverlag. Alle Rechte vorbehalten.</span>
-  <div class="footer-links">
-    <button id="openImpressumBtn">Impressum</button>
-    <button id="openDatenschutzBtn">Datenschutz</button>
-    <a href="mailto:blackboxbuecher@gmail.com">Kontakt</a>
-    <a href="admin.html">Verwaltung</a>
+<div id="cookieModalBackdrop" class="modal-backdrop" style="z-index: 350;">
+  <div class="modal" style="max-width: 500px;">
+    <div class="modal-header" style="margin-bottom: 12px;">
+      <h2>Datenschutz & Cookie-Hinweis</h2>
+    </div>
+    <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+      <p>Auf <strong>Blackbox Bücher</strong> verwenden wir lokale Speichertechnologien (Local Storage / Session Storage), damit deine persönlichen Einstellungen auf der Website reibungslos funktionieren:</p>
+      <ul style="padding-left: 18px; display: flex; flex-direction: column; gap: 6px;">
+        <li><strong>Benutzerkonto & Login:</strong> Speichert deine Sitzung, damit du als Leser angemeldet bleibst.</li>
+        <li><strong>Profilbild:</strong> Dein individuell ausgewähltes Profilbild wird sicher und lokal auf deinem Endgerät zwischengespeichert.</li>
+        <li><strong>Lesefortschritt & Metadaten:</strong> Damit deine gelesenen Kapitel und individuellen Lesestände direkt im Web-Reader synchronisiert werden.</li>
+      </ul>
+      <p>Es werden keine externen Werbe-Tracker, Social-Media-Pixel oder Analyse-Cookies eingesetzt.</p>
+    </div>
+    <button id="acceptCookieNoticeBtn" class="btn btn-primary" style="width: 100%;">Verstanden & Fortfahren</button>
   </div>
-</footer>
+</div>
 
 <div id="authModal" class="modal-backdrop">
   <div class="modal">
@@ -242,6 +309,10 @@
         <label for="authUsername">Benutzername</label>
         <input type="text" id="authUsername" required placeholder="Dein Benutzername">
       </div>
+      <div class="form-group" id="emailGroup" style="display: none;">
+        <label for="authEmail">E-Mail-Adresse</label>
+        <input type="email" id="authEmail" placeholder="deine@email.de">
+      </div>
       <div class="form-group">
         <label for="authPassword">Passwort</label>
         <input type="password" id="authPassword" required placeholder="••••••••">
@@ -250,52 +321,101 @@
         <label for="authPasswordConfirm">Passwort bestätigen</label>
         <input type="password" id="authPasswordConfirm" placeholder="••••••••">
       </div>
-      <button type="submit" id="authSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Anmelden</button>
+      <button type="submit" id="authSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Anmelden</button>
     </form>
   </div>
 </div>
 
 <div id="profileModal" class="modal-backdrop">
-  <div class="modal" style="max-width: 400px;">
-    <div class="modal-header">
-      <h2>Benutzerprofil</h2>
+  <div class="modal" style="max-width: 420px;">
+    <div class="modal-header" style="margin-bottom: 12px;">
+      <h2>Dein Leserkonto</h2>
       <button class="close-modal" data-close="profileModal">&times;</button>
     </div>
-    <div style="font-size: 14px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
-      <div><strong>Benutzername:</strong> <span id="modalProfileName" style="color: var(--text-secondary);"></span></div>
-      <div><strong>Beigetreten am:</strong> <span id="modalProfileJoined" style="color: var(--text-secondary);"></span></div>
+
+    <div class="profile-hero-card">
+      <div id="modalProfileAvatar" class="profile-avatar-wrapper" title="Klicken, um Foto auszuwählen">
+        <div id="modalAvatarInner" class="user-avatar" style="width: 100%; height: 100%; font-size: 24px;"></div>
+      </div>
+      <div id="modalProfileName" class="profile-display-name">Leser</div>
+      <div class="profile-display-sub">Tippe auf das Bild, um ein Profilfoto zu wählen</div>
     </div>
-    <button id="confirmLogoutBtn" class="btn btn-secondary" style="width: 100%; background: rgba(255, 59, 48, 0.1); color: #FF3B30; border: none;">Abmelden</button>
+
+    <input type="file" id="directAvatarInput" accept="image/*" style="display: none;">
+
+    <div class="profile-info-list">
+      <div class="profile-info-row">
+        <span class="profile-info-label">Benutzername</span>
+        <span id="infoUsername" class="profile-info-value">-</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">E-Mail-Adresse</span>
+        <span id="infoEmail" class="profile-info-value">-</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">Mitglied seit</span>
+        <span id="infoJoined" class="profile-info-value">-</span>
+      </div>
+      <div class="profile-info-row">
+        <span class="profile-info-label">Datenspeicherung</span>
+        <span class="profile-info-value"><span class="status-pill status-pill-yes">Aktiv (Lokal)</span></span>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <button id="confirmLogoutBtn" class="btn btn-secondary" style="width: 100%; background: rgba(255, 59, 48, 0.12); color: var(--danger-color); border: none;">Abmelden</button>
+    </div>
   </div>
 </div>
 
 <div id="previewModal" class="modal-backdrop">
   <div class="modal modal-large">
-    <div id="previewCoverContainer" style="border-radius: 6px 14px 14px 6px; min-height: 310px; position:relative; overflow:hidden; background:var(--bg-elevated); box-shadow: var(--shadow-book);"></div>
+    <div id="previewCoverContainer" style="border-radius: 6px 14px 14px 6px; min-height: 340px; position:relative; overflow:hidden; background:var(--bg-elevated); box-shadow: var(--shadow-book);"></div>
     <div style="display: flex; flex-direction: column; justify-content: space-between;">
       <div>
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 10px;">
           <div>
             <span id="previewGenre" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em;"></span>
-            <h2 id="previewTitle" style="font-size: 23px; font-weight: 700; margin-top: 4px; letter-spacing: -0.02em; line-height: 1.2;"></h2>
-            <div id="previewAuthor" style="font-size: 13px; color: var(--text-secondary); margin-top: 4px; font-weight: 500;"></div>
+            <h2 id="previewTitle" style="font-size: 21px; font-weight: 700; margin-top: 2px; letter-spacing: -0.02em; line-height: 1.2;"></h2>
+            <div id="previewAuthor" style="font-size: 13px; color: var(--text-secondary); margin-top: 2px; font-weight: 500;"></div>
           </div>
           <button class="close-modal" data-close="previewModal">&times;</button>
         </div>
-        <p id="previewDesc" style="font-size: 14px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 20px; max-height: 160px; overflow-y: auto;"></p>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 12px 0;">
+          <div style="background: var(--bg-primary); padding: 7px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 10px; text-align: center;">
+            <span style="color: var(--text-muted); display: block; font-weight: 600;">Seiten</span>
+            <span id="previewPagesInfo" style="color: var(--text-primary); font-weight: 700;">50 Seiten</span>
+          </div>
+          <div style="background: var(--bg-primary); padding: 7px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 10px; text-align: center;">
+            <span style="color: var(--text-muted); display: block; font-weight: 600;">Altersfreigabe</span>
+            <span id="previewAgeInfo" style="color: var(--success-color); font-weight: 700;">Ab 16 Jahren</span>
+          </div>
+          <div style="background: var(--bg-primary); padding: 7px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 10px; text-align: center;">
+            <span style="color: var(--text-muted); display: block; font-weight: 600;">Release</span>
+            <span style="color: var(--text-primary); font-weight: 700;">20.11.2026</span>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-primary); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 12px; font-size: 12px; display: flex; flex-direction: column; gap: 4px;">
+          <strong style="color: var(--text-primary);"></strong>
+          <span id="previewExtraDetail" style="color: var(--text-secondary); line-height: 1.5;"></span>
+        </div>
+
+        <p id="previewDesc" style="font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 16px; max-height: 100px; overflow-y: auto;"></p>
       </div>
-      <div id="previewActionContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+      <div id="previewActionContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
     </div>
   </div>
 </div>
 
 <div id="passwordModal" class="modal-backdrop">
-  <div class="modal" style="max-width: 380px;">
+  <div class="modal" style="max-width: 360px;">
     <div class="modal-header">
       <h2>Geschützter Bereich</h2>
       <button class="close-modal" data-close="passwordModal">&times;</button>
     </div>
-    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Dieses Buch befindet sich noch in der Entwurfsphase. Bitte gib das Zugriffspasswort ein:</p>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Bitte gib das Zugriffspasswort ein, um diesen geschützten Entwurf zu öffnen:</p>
     <form id="passwordForm">
       <div id="passwordError" class="error-msg"></div>
       <div class="form-group">
@@ -312,14 +432,14 @@
       <h2>Impressum</h2>
       <button class="close-modal" data-close="impressumModal">&times;</button>
     </div>
-    <div style="font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 16px;">
+    <div style="font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 14px;">
       <div>
         <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">Angaben gemäß § 5 DDG</h3>
         <p>Matteo Neumann<br>Adlerhorst 5a<br>21376 Salzhausen</p>
       </div>
       <div>
         <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">Kontakt</h3>
-        <p>E-Mail: Blackboxbuecher@gmail.com</p>
+        <p>E-Mail: blackboxbuecher@gmail.com</p>
       </div>
     </div>
   </div>
@@ -331,14 +451,41 @@
       <h2>Datenschutzerklärung</h2>
       <button class="close-modal" data-close="datenschutzModal">&times;</button>
     </div>
-    <div style="font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 16px;">
+    <div style="font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 14px;">
       <div>
         <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">1. Datenschutz auf einen Blick</h3>
-        <p>Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen.</p>
+        <p>Wir erheben und verarbeiten personenbezogene Daten (wie Benutzernamen und E-Mail-Adressen) ausschließlich dann, wenn du dich freiwillig registrierst, um deine Lesefortschritte und persönlichen Leseinstellungen im Web-Reader zu sichern.</p>
       </div>
       <div>
-        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">2. Datenerfassung</h3>
-        <p>Wenn Sie sich registrieren, speichern wir Ihren Benutzernamen und Ihr Passwort (verschlüsselt) über Google Apps Script zur Verwaltung Ihrer Lesefortschritte gemäß Art. 6 Abs. 1 lit. b DSGVO.</p>
+        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">2. Lokaler Speicher</h3>
+        <p>Deine Sitzungsdaten und dein Profilbild werden über den Local Storage und Session Storage deines Browsers lokal gesichert, damit die Website fehlerfrei und ohne unnötige Serverabfragen funktioniert.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="nutzungsbedingungenModal" class="modal-backdrop">
+  <div class="modal modal-legal">
+    <div class="modal-header">
+      <h2>Nutzungsbedingungen</h2>
+      <button class="close-modal" data-close="nutzungsbedingungenModal">&times;</button>
+    </div>
+    <div style="font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 14px;">
+      <div>
+        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">1. Geltungsbereich</h3>
+        <p>Diese Nutzungsbedingungen gelten für das digitale Angebot des Mikroverlags Blackbox Bücher, einschließlich aller Web-Reader, Leseproben und bereitgestellten eBooks.</p>
+      </div>
+      <div>
+        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">2. Urheberrecht & Inhalte</h3>
+        <p>Sämtliche auf dieser Website veröffentlichten Texte, Cover, Grafiken und Leseproben unterliegen dem deutschen Urheberrecht. Eine unautorisierte Vervielfältigung, Verbreitung oder kommerzielle Nutzung ist ohne vorherige schriftliche Genehmigung untersagt.</p>
+      </div>
+      <div>
+        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">3. Nutzerkonto & Sicherheit</h3>
+        <p>Du bist dafür verantwortlich, deine Zugangsdaten (Passwort) vertraulich zu behandeln und sicher aufzubewahren. Der Betreiber übernimmt keine Haftung für Schäden, die durch unbefugte Nutzung des Accounts entstehen.</p>
+      </div>
+      <div>
+        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">4. Haftungsausschluss</h3>
+        <p>Wir übernehmen keine Garantie für die ständige, ununterbrochene Erreichbarkeit der Online-Dienste und externer Verknüpfungen.</p>
       </div>
     </div>
   </div>
@@ -348,28 +495,59 @@
 
 <script>
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4EDtJo07Vx-_wNgjuhVxsAqKg8VXXs2SP-TFiaMDiN4GY0OqnED_nV8uV6eVWGWb8/exec";
-  const SESSION_KEY = 'bb_drive_session_v11';
+  const SESSION_KEY = 'bb_drive_session_v15';
+  const COOKIE_SEEN_KEY = 'bb_cookie_notice_seen';
 
   const defaultBooks = [
+    {
+      id: 'bk-1',
+      status: 'N',
+      title: 'Black Comedy – 50 geile Geschichten',
+      author: 'Matteo Neumann',
+      genre: 'Satire & Schwarzer Humor',
+      cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
+      readerPage: 'eBooks/BCeB/eBookred.html',
+      description: '50 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Seit dem 20.11.2026 hier erhältlich.',
+      pages: 50,
+      ageRating: 'Ab 16 Jahren',
+      isFeatured: true
+    }
   ];
 
   let books = [...defaultBooks];
   let featuredBook = books[0];
-  let currentUser = JSON.parse(localStorage.getItem(SESSION_KEY)) || null;
+  let currentSearch = '';
+
+  // Sicheres Laden der Sitzung (verhindert Absturz bei kaputtem JSON)
+  function loadStoredSession() {
+    try {
+      return JSON.parse(localStorage.getItem(SESSION_KEY)) ||
+             JSON.parse(sessionStorage.getItem(SESSION_KEY)) ||
+             null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  let currentUser = loadStoredSession();
   let authMode = 'login';
   let activeBookForPassword = null;
-  let currentSearch = '';
 
   const bookGrid = document.getElementById('bookGrid');
   const openAuthBtn = document.getElementById('openAuthBtn');
-  const profileBtn = document.getElementById('profileBtn');
-  const profileNameDisplay = document.getElementById('profileNameDisplay');
+  const profileTrigger = document.getElementById('profileTrigger');
+  const navUsernameDisplay = document.getElementById('navUsernameDisplay');
+  const navUserAvatar = document.getElementById('navUserAvatar');
+  
   const authModal = document.getElementById('authModal');
   const profileModal = document.getElementById('profileModal');
   const previewModal = document.getElementById('previewModal');
   const passwordModal = document.getElementById('passwordModal');
   const impressumModal = document.getElementById('impressumModal');
   const datenschutzModal = document.getElementById('datenschutzModal');
+  const nutzungsbedingungenModal = document.getElementById('nutzungsbedingungenModal');
+  const cookieModalBackdrop = document.getElementById('cookieModalBackdrop');
+  
   const authForm = document.getElementById('authForm');
   const passwordForm = document.getElementById('passwordForm');
   const authError = document.getElementById('authError');
@@ -377,15 +555,35 @@
   const secretPasswordInput = document.getElementById('secretPasswordInput');
   const authModalTitle = document.getElementById('authModalTitle');
   const authSubmitBtn = document.getElementById('authSubmitBtn');
+  const emailGroup = document.getElementById('emailGroup');
   const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+  
   const previewCoverContainer = document.getElementById('previewCoverContainer');
   const previewTitle = document.getElementById('previewTitle');
   const previewAuthor = document.getElementById('previewAuthor');
   const previewGenre = document.getElementById('previewGenre');
   const previewDesc = document.getElementById('previewDesc');
+  const previewPagesInfo = document.getElementById('previewPagesInfo');
+  const previewAgeInfo = document.getElementById('previewAgeInfo');
+  const previewExtraDetail = document.getElementById('previewExtraDetail');
   const previewActionContainer = document.getElementById('previewActionContainer');
   const searchInput = document.getElementById('searchInput');
   const toast = document.getElementById('toast');
+
+  if (!localStorage.getItem(COOKIE_SEEN_KEY)) {
+    setTimeout(() => cookieModalBackdrop.classList.add('active'), 300);
+  }
+
+  document.getElementById('acceptCookieNoticeBtn').onclick = () => {
+    localStorage.setItem(COOKIE_SEEN_KEY, 'true');
+    cookieModalBackdrop.classList.remove('active');
+    showToast('Hinweis akzeptiert.');
+  };
+
+  function saveUserSession(userObj) {
+    if (!userObj) return;
+    localStorage.setItem(SESSION_KEY, JSON.stringify(userObj));
+  }
 
   function showToast(msg) {
     toast.textContent = msg;
@@ -409,7 +607,11 @@
   async function loadBooksFromDatabase() {
     const res = await callDriveBackend({ action: 'getBooks' });
     if (res && res.success && Array.isArray(res.books) && res.books.length > 0) {
-      books = res.books;
+      books = res.books.map(b => ({
+        ...b,
+        pages: b.pages || 50,
+        ageRating: b.ageRating || 'Ab 16 Jahren'
+      }));
     }
     updateHeroSection();
     renderBooks();
@@ -424,14 +626,30 @@
     document.getElementById('heroCoverImg').alt = featuredBook.title;
   }
 
+  function renderAvatar(containerEl, user) {
+    if (!containerEl) return;
+    const name = (user && (user.username || user.name)) || 'User';
+    const avatarUrl = (user && user.avatar) || '';
+    if (avatarUrl) {
+      containerEl.innerHTML = `<img src="${avatarUrl}" alt="${name}">`;
+    } else {
+      const parts = name.trim().split(' ');
+      const initials = parts.length > 1 
+        ? (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase() 
+        : name.substring(0, 2).toUpperCase();
+      containerEl.textContent = initials;
+    }
+  }
+
   function updateAuthUI() {
     if (currentUser) {
       openAuthBtn.style.display = 'none';
-      profileBtn.style.display = 'inline-flex';
-      profileNameDisplay.textContent = currentUser.username || currentUser.name;
+      profileTrigger.style.display = 'inline-flex';
+      navUsernameDisplay.textContent = currentUser.username || currentUser.name;
+      renderAvatar(navUserAvatar, currentUser);
     } else {
       openAuthBtn.style.display = 'inline-flex';
-      profileBtn.style.display = 'none';
+      profileTrigger.style.display = 'none';
     }
     renderBooks();
   }
@@ -530,6 +748,15 @@
     previewAuthor.textContent = `von ${book.author}`;
     previewGenre.textContent = book.genre;
     previewDesc.textContent = book.description;
+    
+    previewPagesInfo.textContent = `${book.pages || 50} Seiten`;
+    previewAgeInfo.textContent = book.ageRating || 'Ab 16 Jahren';
+
+    // Optionaler Detailtext pro Buch (überschreibt den Standardtext im HTML)
+    if (book.detailText) {
+      previewExtraDetail.textContent = book.detailText;
+    }
+
     previewCoverContainer.innerHTML = `<img src="${book.cover}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" alt="">`;
 
     previewActionContainer.innerHTML = '';
@@ -574,8 +801,8 @@
     openModal(previewModal);
   }
 
-  function openModal(modal) { modal.classList.add('active'); }
-  function closeModal(modal) { modal.classList.remove('active'); }
+  function openModal(modal) { if (modal) modal.classList.add('active'); }
+  function closeModal(modal) { if (modal) modal.classList.remove('active'); }
 
   document.querySelectorAll('.close-modal, [data-close]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -586,17 +813,52 @@
 
   document.getElementById('openImpressumBtn').onclick = () => openModal(impressumModal);
   document.getElementById('openDatenschutzBtn').onclick = () => openModal(datenschutzModal);
+  document.getElementById('openNutzungsbedingungenBtn').onclick = () => openModal(nutzungsbedingungenModal);
 
   openAuthBtn.onclick = () => { authError.style.display = 'none'; openModal(authModal); };
-  profileBtn.onclick = () => {
-    document.getElementById('modalProfileName').textContent = currentUser.username || currentUser.name;
-    document.getElementById('modalProfileJoined').textContent = currentUser.joined || 'Unbekannt';
+
+  function populateProfileModal() {
+    if (!currentUser) return;
+    const uname = currentUser.username || currentUser.name || 'Unbekannt';
+    const uemail = currentUser.email || 'Nicht hinterlegt';
+    const ujoined = currentUser.joined || new Date().toLocaleDateString('de-DE');
+
+    document.getElementById('modalProfileName').textContent = uname;
+    document.getElementById('infoUsername').textContent = uname;
+    document.getElementById('infoEmail').textContent = uemail;
+    document.getElementById('infoJoined').textContent = ujoined;
+
+    renderAvatar(document.getElementById('modalAvatarInner'), currentUser);
+  }
+
+  profileTrigger.onclick = () => {
+    populateProfileModal();
     openModal(profileModal);
   };
+
+  document.getElementById('modalProfileAvatar').onclick = () => {
+    document.getElementById('directAvatarInput').click();
+  };
+
+  document.getElementById('directAvatarInput').addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(uploadEvent) {
+        currentUser.avatar = uploadEvent.target.result;
+        saveUserSession(currentUser);
+        renderAvatar(document.getElementById('modalAvatarInner'), currentUser);
+        updateAuthUI();
+        showToast('Profilbild erfolgreich aktualisiert!');
+      };
+      reader.readAsDataURL(file);
+    }
+  });
 
   document.getElementById('confirmLogoutBtn').onclick = () => {
     currentUser = null;
     localStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(SESSION_KEY);
     closeModal(profileModal);
     updateAuthUI();
     showToast('Erfolgreich abgemeldet.');
@@ -610,11 +872,15 @@
       if (authMode === 'register') {
         authModalTitle.textContent = 'Registrieren';
         authSubmitBtn.textContent = 'Registrieren';
+        emailGroup.style.display = 'block';
         confirmPasswordGroup.style.display = 'block';
+        document.getElementById('authEmail').required = true;
       } else {
         authModalTitle.textContent = 'Anmelden';
         authSubmitBtn.textContent = 'Anmelden';
+        emailGroup.style.display = 'none';
         confirmPasswordGroup.style.display = 'none';
+        document.getElementById('authEmail').required = false;
       }
       authError.style.display = 'none';
     });
@@ -631,33 +897,32 @@
 
     try {
       if (authMode === 'register') {
+        const email = document.getElementById('authEmail').value.trim();
         const passwordConfirm = document.getElementById('authPasswordConfirm').value;
 
         if (password !== passwordConfirm) {
           authError.textContent = 'Die Passwörter stimmen nicht überein.';
           authError.style.display = 'block';
-          authSubmitBtn.disabled = false;
-          authSubmitBtn.textContent = originalText;
           return;
         }
 
         const res = await callDriveBackend({
           action: 'register',
           username: username,
+          email: email,
           password: password
         });
 
         if (!res.success) {
           authError.textContent = res.error || 'Registrierung fehlgeschlagen.';
           authError.style.display = 'block';
-          authSubmitBtn.disabled = false;
-          authSubmitBtn.textContent = originalText;
           return;
         }
 
         currentUser = res.user;
-        if(!currentUser.username) currentUser.username = username;
-        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        if (!currentUser.username) currentUser.username = username;
+        if (!currentUser.email) currentUser.email = email;
+        saveUserSession(currentUser);
         closeModal(authModal);
         authForm.reset();
         updateAuthUI();
@@ -672,14 +937,12 @@
         if (!res.success) {
           authError.textContent = res.error || 'Anmeldung fehlgeschlagen.';
           authError.style.display = 'block';
-          authSubmitBtn.disabled = false;
-          authSubmitBtn.textContent = originalText;
           return;
         }
 
         currentUser = res.user;
-        if(!currentUser.username) currentUser.username = username;
-        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        if (!currentUser.username) currentUser.username = username;
+        saveUserSession(currentUser);
         closeModal(authModal);
         authForm.reset();
         updateAuthUI();
@@ -695,7 +958,13 @@
   });
 
   updateAuthUI();
-  loadBooksFromDatabase();
+  
+  document.body.classList.remove('loaded');
+  loadBooksFromDatabase().then(() => {
+    setTimeout(() => {
+      document.body.classList.add('loaded');
+    }, 1000);
+  });
 </script>
 </body>
 </html>
