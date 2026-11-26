@@ -238,16 +238,16 @@
     <div class="hero-glow"></div>
     <div class="hero-grid">
       <div>
-        <div class="hero-eyebrow"></div>
-        <h1 id="heroTitle"></h1>
-        <p id="heroDesc">eBooks</p>
+        <div class="hero-eyebrow">Exklusiver Mikroverlag für eBooks</div>
+        <h1 id="heroTitle">Lade eBooks...</h1>
+        <p id="heroDesc">Verbindung zur Datenbank wird hergestellt.</p>
         <div class="hero-cta-group">
-          <button id="heroFeaturedBtn" class="btn btn-primary">Zum Buch</button>
+          <button id="heroFeaturedBtn" class="btn btn-primary" style="display:none;">Zum Buch</button>
         </div>
       </div>
       <div class="hero-featured">
         <div class="featured-book-mockup" id="featuredCoverTrigger" title="Aktuelle Ausgabe ansehen">
-          <img id="heroCoverImg" src="eBooks/BCeB/Black-Comedy-Cover.jpg" alt="Black Comedy Cover">
+          <img id="heroCoverImg" src="" alt="Cover Vorschau">
         </div>
       </div>
     </div>
@@ -398,8 +398,8 @@
         </div>
 
         <div style="background: var(--bg-primary); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 12px; font-size: 12px; display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: var(--text-primary);"></strong>
-          <span id="previewExtraDetail" style="color: var(--text-secondary); line-height: 1.5;"></span>
+          <strong style="color: var(--text-primary);">Buchdetails:</strong>
+          <span id="previewExtraDetail" style="color: var(--text-secondary); line-height: 1.5;">Dieses eBook wurde nach höchsten Standards für moderne Web-Reader optimiert.</span>
         </div>
 
         <p id="previewDesc" style="font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 16px; max-height: 100px; overflow-y: auto;"></p>
@@ -498,25 +498,9 @@
   const SESSION_KEY = 'bb_drive_session_v15';
   const COOKIE_SEEN_KEY = 'bb_cookie_notice_seen';
 
-  const defaultBooks = [
-    {
-      id: 'bk-1',
-      status: 'N',
-      title: 'Black Comedy – 50 geile Geschichten',
-      author: 'Matteo Neumann',
-      genre: 'Satire & Schwarzer Humor',
-      cover: 'eBooks/BCeB/Black-Comedy-Cover.jpg',
-      readerPage: 'eBooks/BCeB/eBookred.html',
-      description: '50 geile Kurzgeschichten über Nachbarschaftskriege, missglückte Dates und absurde Alltagsdramen. Seit dem 20.11.2026 hier erhältlich.',
-      pages: 50,
-      ageRating: 'Ab 16 Jahren',
-      isFeatured: true
-    }
-  ];
-
-  let books = [...defaultBooks];
+  let books = [];
   let categoryLabels = { N: 'Kostenlos', J: 'Kostenpflichtig', P: 'In Entwicklung', Z: 'Geschützt' };
-  let featuredBook = books[0];
+  let featuredBook = null;
   let currentSearch = '';
 
   function loadStoredSession() {
@@ -606,28 +590,49 @@
 
   async function loadInitialData() {
     try {
-      const res = await callDriveBackend({ action: 'getAppData' });
-      if (res && res.success) {
-        if (Array.isArray(res.books) && res.books.length > 0) {
-          books = res.books.map(b => ({
-            ...b,
-            pages: b.pages || 50,
-            ageRating: b.ageRating || 'Ab 16 Jahren'
-          }));
-        }
+      // Wir unterstützen hier sowohl getAppData als auch getBooks, um Kompatibilität mit dem alten Skript zu garantieren
+      let res = await callDriveBackend({ action: 'getAppData' });
+      if (!res || !res.success || (!res.books && !Array.isArray(res))) {
+        res = await callDriveBackend({ action: 'getBooks' });
+      }
+
+      let rawBooks = [];
+      if (res) {
+        if (Array.isArray(res)) rawBooks = res;
+        else if (res.books && Array.isArray(res.books)) rawBooks = res.books;
+        else if (res.data && Array.isArray(res.data)) rawBooks = res.data;
+
         if (res.settings) {
           categoryLabels = { ...categoryLabels, ...res.settings };
         }
       }
+
+      if (rawBooks.length > 0) {
+        books = rawBooks.map(b => ({
+          ...b,
+          pages: b.pages || 50,
+          ageRating: b.ageRating || 'Ab 16 Jahren'
+        }));
+      }
     } catch (err) {
-      console.error("Datenbankverbindung fehlgeschlagen, verwende Standardwerte.");
+      console.error("Datenbankverbindung fehlgeschlagen:", err);
+      showToast("Verbindungsfehler zur Datenbank.");
     }
     updateHeroSection();
     renderBooks();
   }
 
   function updateHeroSection() {
-    if (books.length === 0) return;
+    const heroFeaturedBtn = document.getElementById('heroFeaturedBtn');
+    if (books.length === 0) {
+      document.getElementById('heroTitle').textContent = "Keine eBooks verfügbar";
+      document.getElementById('heroDesc').textContent = "Füge über den Admin-Bereich deine ersten eBooks hinzu, damit sie hier angezeigt werden.";
+      document.getElementById('heroCoverImg').src = "";
+      if (heroFeaturedBtn) heroFeaturedBtn.style.display = 'none';
+      return;
+    }
+    
+    if (heroFeaturedBtn) heroFeaturedBtn.style.display = 'inline-flex';
     featuredBook = books.find(b => b.isFeatured === true || b.isFeatured === "true" || b.isFeatured === "TRUE") || books[0];
     document.getElementById('heroTitle').textContent = featuredBook.title;
     document.getElementById('heroDesc').textContent = featuredBook.description;
@@ -665,6 +670,12 @@
 
   function renderBooks() {
     bookGrid.innerHTML = '';
+    
+    if (books.length === 0) {
+      bookGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0;">Es sind aktuell keine eBooks in der Datenbank hinterlegt.</p>';
+      return;
+    }
+
     const purchases = (currentUser && currentUser.purchases) || [];
     const progressMap = (currentUser && currentUser.progress) || {};
 
@@ -672,6 +683,11 @@
       const matchesSearch = (book.title || '').toLowerCase().includes(currentSearch) || (book.genre || '').toLowerCase().includes(currentSearch);
       return matchesSearch;
     });
+
+    if (filteredBooks.length === 0) {
+      bookGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0;">Keine eBooks passend zu deiner Suche gefunden.</p>';
+      return;
+    }
 
     filteredBooks.forEach(book => {
       const card = document.createElement('article');
@@ -719,12 +735,19 @@
     });
   }
 
-  document.getElementById('heroFeaturedBtn').onclick = () => {
-    if (featuredBook) handleBookClick(featuredBook);
-  };
-  document.getElementById('featuredCoverTrigger').onclick = () => {
-    if (featuredBook) handleBookClick(featuredBook);
-  };
+  const heroFeaturedBtn = document.getElementById('heroFeaturedBtn');
+  if (heroFeaturedBtn) {
+    heroFeaturedBtn.onclick = () => {
+      if (featuredBook) handleBookClick(featuredBook);
+    };
+  }
+  
+  const featuredCoverTrigger = document.getElementById('featuredCoverTrigger');
+  if (featuredCoverTrigger) {
+    featuredCoverTrigger.onclick = () => {
+      if (featuredBook) handleBookClick(featuredBook);
+    };
+  }
 
   searchInput.addEventListener('input', (e) => {
     currentSearch = e.target.value.toLowerCase().trim();
