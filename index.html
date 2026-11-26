@@ -515,10 +515,10 @@
   ];
 
   let books = [...defaultBooks];
+  let categoryLabels = { N: 'Kostenlos', J: 'Kostenpflichtig', P: 'In Entwicklung', Z: 'Geschützt' };
   let featuredBook = books[0];
   let currentSearch = '';
 
-  // Sicheres Laden der Sitzung (verhindert Absturz bei kaputtem JSON)
   function loadStoredSession() {
     try {
       return JSON.parse(localStorage.getItem(SESSION_KEY)) ||
@@ -604,14 +604,23 @@
     }
   }
 
-  async function loadBooksFromDatabase() {
-    const res = await callDriveBackend({ action: 'getBooks' });
-    if (res && res.success && Array.isArray(res.books) && res.books.length > 0) {
-      books = res.books.map(b => ({
-        ...b,
-        pages: b.pages || 50,
-        ageRating: b.ageRating || 'Ab 16 Jahren'
-      }));
+  async function loadInitialData() {
+    try {
+      const res = await callDriveBackend({ action: 'getAppData' });
+      if (res && res.success) {
+        if (Array.isArray(res.books) && res.books.length > 0) {
+          books = res.books.map(b => ({
+            ...b,
+            pages: b.pages || 50,
+            ageRating: b.ageRating || 'Ab 16 Jahren'
+          }));
+        }
+        if (res.settings) {
+          categoryLabels = { ...categoryLabels, ...res.settings };
+        }
+      }
+    } catch (err) {
+      console.error("Datenbankverbindung fehlgeschlagen, verwende Standardwerte.");
     }
     updateHeroSection();
     renderBooks();
@@ -675,15 +684,17 @@
         : '';
 
       let statusTagHtml = '';
+      const labelText = categoryLabels[book.status] || book.status;
+
       if (book.status === 'N') {
-        statusTagHtml = isOwned ? `<span class="tag-owned">Freigeschaltet</span>` : `<span class="tag-free">Kostenlos</span>`;
+        statusTagHtml = isOwned ? `<span class="tag-owned">Freigeschaltet</span>` : `<span class="tag-free">${labelText}</span>`;
       } else if (book.status === 'P') {
-        statusTagHtml = `<span class="tag-soon">In Entwicklung</span>`;
+        statusTagHtml = `<span class="tag-soon">${labelText}</span>`;
       } else if (book.status === 'J') {
-        const priceLabel = book.price ? `${book.price}` : 'Kostenpflichtig';
+        const priceLabel = book.price ? `${book.price}` : labelText;
         statusTagHtml = `<span class="tag-buy">${priceLabel}</span>`;
       } else if (book.status === 'Z') {
-        statusTagHtml = `<span class="tag-secret">Geschützt</span>`;
+        statusTagHtml = `<span class="tag-secret">${labelText}</span>`;
       }
 
       card.innerHTML = `
@@ -752,7 +763,6 @@
     previewPagesInfo.textContent = `${book.pages || 50} Seiten`;
     previewAgeInfo.textContent = book.ageRating || 'Ab 16 Jahren';
 
-    // Optionaler Detailtext pro Buch (überschreibt den Standardtext im HTML)
     if (book.detailText) {
       previewExtraDetail.textContent = book.detailText;
     }
@@ -766,7 +776,7 @@
       infoBtn.className = 'btn btn-secondary';
       infoBtn.style.width = '100%';
       infoBtn.style.cursor = 'default';
-      infoBtn.textContent = 'In Entwicklung – Bald verfügbar';
+      infoBtn.textContent = `${categoryLabels['P'] || 'In Entwicklung'} – Bald verfügbar`;
       previewActionContainer.appendChild(infoBtn);
     } 
     else if (book.status === 'J') {
@@ -783,7 +793,7 @@
       const buyBtn = document.createElement('a');
       buyBtn.className = 'btn btn-success';
       buyBtn.style.width = '100%';
-      buyBtn.textContent = book.price ? `🛒 Kaufen (${book.price})` : '🛒 Jetzt kaufen';
+      buyBtn.textContent = book.price ? `🛒 Kaufen (${book.price})` : `🛒 ${categoryLabels['J'] || 'Kaufen'}`;
       buyBtn.href = book.buyUrl || book.readerPage || '#';
       buyBtn.target = '_blank';
       previewActionContainer.appendChild(buyBtn);
@@ -960,7 +970,7 @@
   updateAuthUI();
   
   document.body.classList.remove('loaded');
-  loadBooksFromDatabase().then(() => {
+  loadInitialData().then(() => {
     setTimeout(() => {
       document.body.classList.add('loaded');
     }, 1000);
