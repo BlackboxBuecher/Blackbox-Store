@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blackbox Bücher</title>
 <meta name="robots" content="index, follow">
-
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1D1D1F">
-
-<link rel="icon" type="image/png" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png" media="(prefers-color-scheme: light)">
-<link rel="icon" type="image/png" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png" media="(prefers-color-scheme: dark)">
-
+<link rel="icon" type="image/png" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png">
 <style>
   :root {
     --bg-primary: #F5F5F7;
@@ -34,7 +30,6 @@
     --radius-lg: 26px;
     --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
-
   @media (prefers-color-scheme: dark) {
     :root {
       --bg-primary: #000000;
@@ -54,43 +49,21 @@
       --shadow-book: -8px 16px 32px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.4);
     }
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
-  
-  body { 
-    background-color: var(--bg-primary); 
-    color: var(--text-primary); 
-    line-height: 1.55; 
-    min-height: 100vh; 
-    display: flex; 
-    flex-direction: column; 
-  }
-
-  .page-content-wrapper {
-    filter: blur(10px);
-    transition: filter 1s cubic-bezier(0.16, 1, 0.3, 1);
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  body.loaded .page-content-wrapper {
-    filter: blur(0px);
-  }
-
+  body { background-color: var(--bg-primary); color: var(--text-primary); line-height: 1.55; min-height: 100vh; display: flex; flex-direction: column; }
+  .page-content-wrapper { filter: blur(10px); transition: filter 1s cubic-bezier(0.16, 1, 0.3, 1); flex: 1; display: flex; flex-direction: column; }
+  body.loaded .page-content-wrapper { filter: blur(0px); }
   header { position: sticky; top: 0; z-index: 100; background: var(--bg-glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--border-subtle); }
   .nav-container { max-width: 1180px; margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-primary); }
   .brand-logo { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; box-shadow: var(--shadow-sm); }
   .brand-name { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
-
   .nav-actions { display: flex; align-items: center; gap: 10px; }
-  
   .profile-trigger { display: none; align-items: center; gap: 10px; padding: 5px 14px 5px 5px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 999px; cursor: pointer; transition: var(--transition-smooth); }
   .profile-trigger:hover { opacity: 0.85; transform: scale(1.02); }
   .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #8E8E93; color: #FFF; display: grid; place-items: center; font-size: 13px; font-weight: 700; overflow: hidden; flex-shrink: 0; }
   .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .profile-username-text { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-
   .btn { border: none; cursor: pointer; font-size: 13px; font-weight: 600; padding: 11px 20px; border-radius: 999px; transition: var(--transition-smooth); display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
   .btn-primary { background: var(--accent-primary); color: #FFF; }
   .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3); }
@@ -98,47 +71,37 @@
   .btn-secondary:hover { opacity: 0.85; transform: translateY(-1px); }
   .btn-success { background: var(--success-color); color: #FFF; }
   .btn-success:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(48, 209, 88, 0.25); }
-
   .hero-stage { position: relative; width: 100%; padding: 64px 28px; background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); overflow: hidden; }
   .hero-glow { position: absolute; top: -40%; right: 5%; width: 520px; height: 520px; background: radial-gradient(circle, rgba(0, 102, 204, 0.12) 0%, transparent 70%); pointer-events: none; }
   .hero-grid { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 48px; align-items: center; position: relative; z-index: 2; }
   @media(max-width: 820px) { .hero-grid { grid-template-columns: 1fr; text-align: center; } .hero-featured { display: none !important; } }
-
   .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-primary); margin-bottom: 14px; }
   .hero-eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-primary); }
   .hero-stage h1 { font-size: clamp(34px, 5vw, 54px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.06; margin-bottom: 16px; }
   .hero-stage p { font-size: 17px; color: var(--text-secondary); max-width: 540px; line-height: 1.6; margin-bottom: 28px; }
   @media(max-width: 820px) { .hero-stage p { margin-inline: auto; } }
-
   .hero-cta-group { display: flex; gap: 12px; flex-wrap: wrap; }
   @media(max-width: 820px) { .hero-cta-group { justify-content: center; } }
-
   .hero-featured { display: flex; justify-content: flex-end; }
   .featured-book-mockup { position: relative; width: 200px; aspect-ratio: 2 / 3; border-radius: 6px 14px 14px 6px; overflow: hidden; box-shadow: var(--shadow-book); cursor: pointer; transition: var(--transition-smooth); }
   .featured-book-mockup:hover { transform: translateY(-6px) rotate(-1.5deg); }
   .featured-book-mockup img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .featured-book-mockup::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0.22) 0%, rgba(0,0,0,0.12) 4%, transparent 10%); pointer-events: none; }
-
   main { max-width: 1180px; width: 100%; margin: 0 auto; padding: 48px 28px 96px; }
   .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
   .section-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
-
   .filter-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .search-input { background: var(--bg-surface); border: 1px solid var(--border-subtle); color: var(--text-primary); padding: 8px 16px; border-radius: 999px; font-size: 13px; outline: none; width: 200px; transition: var(--transition-smooth); }
   .search-input:focus { border-color: var(--accent-primary); width: 230px; }
-
   .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 28px; }
   .book-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px; display: flex; flex-direction: column; transition: var(--transition-smooth); cursor: pointer; box-shadow: var(--shadow-sm); }
   .book-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); border-color: rgba(0, 102, 204, 0.35); }
-
   .book-cover-wrapper { display: flex; justify-content: center; padding: 12px 0 22px; position: relative; }
   .book-cover { aspect-ratio: 2 / 3; width: 72%; background: var(--bg-elevated); position: relative; overflow: hidden; border-radius: 4px 10px 10px 4px; box-shadow: var(--shadow-book); transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
   .book-card:hover .book-cover { transform: scale(1.04) translateY(-2px); }
   .book-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .book-cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0.22) 0%, rgba(0,0,0,0.15) 4%, transparent 10%); pointer-events: none; }
-  
   .reading-progress-badge { position: absolute; top: 8px; right: 8px; background: rgba(0, 0, 0, 0.78); backdrop-filter: blur(8px); color: #FFF; font-size: 10px; font-weight: 700; padding: 4px 9px; border-radius: 999px; z-index: 5; }
-
   .book-body { display: flex; flex-direction: column; flex: 1; }
   .book-meta { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 4px; }
   .book-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; line-height: 1.3; letter-spacing: -0.01em; }
@@ -146,41 +109,22 @@
   .book-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--border-subtle); margin-top: auto; }
   .book-action-hint { font-size: 12px; font-weight: 600; color: var(--accent-primary); opacity: 0; transform: translateX(-4px); transition: var(--transition-smooth); }
   .book-card:hover .book-action-hint { opacity: 1; transform: translateX(0); }
-  
   .tag-free { background: rgba(48, 209, 88, 0.14); color: var(--success-color); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
   .tag-owned { background: var(--bg-elevated); color: var(--text-secondary); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
   .tag-soon { background: var(--bg-elevated); color: var(--text-secondary); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
   .tag-buy { background: rgba(10, 132, 255, 0.14); color: var(--accent-primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
   .tag-secret { background: rgba(255, 159, 10, 0.14); color: #FF9F0A; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
-
-  .modal-backdrop { 
-    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.52); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); 
-    display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 300; 
-    visibility: hidden; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s; 
-    overflow-y: auto;
-  }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.52); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 300; visibility: hidden; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s; overflow-y: auto; }
   .modal-backdrop.active { visibility: visible; opacity: 1; }
-  
-  .modal { 
-    background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); 
-    width: 100%; max-width: 480px; max-height: calc(100vh - 32px); overflow-y: auto; padding: 28px; box-shadow: var(--shadow-md); 
-    transform: scale(0.95) translateY(12px); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s; opacity: 0;
-  }
+  .modal { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); width: 100%; max-width: 480px; max-height: calc(100vh - 32px); overflow-y: auto; padding: 28px; box-shadow: var(--shadow-md); transform: scale(0.95) translateY(12px); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s; opacity: 0; }
   .modal-backdrop.active .modal { transform: scale(1) translateY(0); opacity: 1; }
-
   .modal-large { max-width: 860px; display: grid; grid-template-columns: 260px 1fr; gap: 28px; }
   .modal-legal { max-width: 620px; }
-  
-  @media(max-width: 768px) { 
-    .modal-large { grid-template-columns: 1fr; max-width: 100%; } 
-    .modal { padding: 20px; }
-  }
-  
+  @media(max-width: 768px) { .modal-large { grid-template-columns: 1fr; max-width: 100%; } .modal { padding: 20px; } }
   .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .modal-header h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
   .close-modal { background: var(--bg-elevated); border: none; color: var(--text-secondary); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; transition: var(--transition-smooth); flex-shrink: 0; }
   .close-modal:hover { background: var(--border-subtle); color: var(--text-primary); transform: scale(1.06); }
-
   .profile-hero-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding-bottom: 18px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px; }
   .profile-avatar-wrapper { position: relative; width: 80px; height: 80px; border-radius: 50%; cursor: pointer; overflow: hidden; box-shadow: var(--shadow-md); border: 3px solid var(--bg-elevated); transition: var(--transition-smooth); margin-bottom: 10px; }
   .profile-avatar-wrapper:hover { transform: scale(1.04); border-color: var(--accent-primary); }
@@ -188,39 +132,33 @@
   .profile-avatar-wrapper:hover::after { opacity: 1; }
   .profile-display-name { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; }
   .profile-display-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
   .profile-info-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
   .profile-info-row { display: flex; justify-content: space-between; align-items: center; background: var(--bg-primary); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 13px; }
   .profile-info-label { color: var(--text-secondary); font-weight: 500; }
   .profile-info-value { color: var(--text-primary); font-weight: 600; text-align: right; }
   .status-pill { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
   .status-pill-yes { background: rgba(48, 209, 88, 0.15); color: var(--success-color); }
-
   .form-group { margin-bottom: 14px; }
   .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
   .form-group input { width: 100%; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 14px; outline: none; transition: border-color 0.2s; }
   .form-group input:focus { border-color: var(--accent-primary); }
-  
   .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-primary); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 18px; border: 1px solid var(--border-subtle); }
   .auth-tab { background: transparent; border: none; color: var(--text-secondary); padding: 7px; font-size: 13px; font-weight: 600; border-radius: 7px; cursor: pointer; transition: var(--transition-smooth); }
   .auth-tab.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: var(--shadow-sm); }
   .error-msg { color: #FF3B30; font-size: 12px; margin-bottom: 14px; display: none; font-weight: 500; }
-
   footer { border-top: 1px solid var(--border-subtle); padding: 32px 24px; text-align: center; color: var(--text-muted); font-size: 12px; background: var(--bg-surface); }
   .footer-links { margin-top: 10px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
   .footer-links button, .footer-links a { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-decoration: none; transition: color 0.2s; font-weight: 500; }
   .footer-links button:hover, .footer-links a:hover { color: var(--text-primary); text-decoration: underline; }
-
   .toast { position: fixed; bottom: 28px; right: 28px; background: var(--text-primary); color: var(--bg-surface); padding: 13px 22px; border-radius: 999px; font-size: 13px; font-weight: 600; transform: translateY(100px); opacity: 0; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s; z-index: 400; box-shadow: var(--shadow-md); }
   .toast.show { transform: translateY(0); opacity: 1; }
 </style>
 </head>
 <body>
-
 <header>
   <div class="nav-container">
     <a href="#" class="brand">
-      <img src="Bilder_und_Medien/Blackbox-Buecher-Icon.png" alt="Blackbox Bücher Logo" class="brand-logo">
+      <img src="Bilder_und_Medien/Blackbox-Buecher-Icon.png" alt="Logo" class="brand-logo">
       <div class="brand-name">Blackbox Bücher</div> 
     </a>
     <div class="nav-actions">
@@ -232,7 +170,6 @@
     </div>
   </div>
 </header>
-
 <div class="page-content-wrapper">
   <section class="hero-stage">
     <div class="hero-glow"></div>
@@ -246,53 +183,39 @@
         </div>
       </div>
       <div class="hero-featured">
-        <div class="featured-book-mockup" id="featuredCoverTrigger" title="Aktuelle Ausgabe ansehen">
-          <img id="heroCoverImg" src="" alt="Cover Vorschau">
+        <div class="featured-book-mockup" id="featuredCoverTrigger">
+          <img id="heroCoverImg" src="" alt="Cover">
         </div>
       </div>
     </div>
   </section>
-
   <main id="programm">
     <div class="toolbar">
       <h2 class="section-title">Unser eBook-Katalog</h2>
       <div class="filter-controls">
-        <input type="search" id="searchInput" class="search-input" placeholder="Titel oder Genre suchen...">
+        <input type="search" id="searchInput" class="search-input" placeholder="Suchen...">
       </div>
     </div>
     <div id="bookGrid" class="book-grid"></div>
   </main>
-
   <footer>
     <span>© 2026 Blackbox Bücher Mikroverlag. Alle Rechte vorbehalten.</span>
     <div class="footer-links">
       <button id="openImpressumBtn">Impressum</button>
-      <button id="openDatenschutzBtn">Datenschutz & Cookies</button>
+      <button id="openDatenschutzBtn">Datenschutz</button>
       <button id="openNutzungsbedingungenBtn">Nutzungsbedingungen</button>
       <a href="mailto:blackboxbuecher@gmail.com">Kontakt</a>
       <a href="admin.html">Verwaltung</a>
     </div>
   </footer>
 </div>
-
 <div id="cookieModalBackdrop" class="modal-backdrop" style="z-index: 350;">
   <div class="modal" style="max-width: 500px;">
-    <div class="modal-header" style="margin-bottom: 12px;">
-      <h2>Datenschutz & Cookie-Hinweis</h2>
-    </div>
-    <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
-      <p>Auf <strong>Blackbox Bücher</strong> verwenden wir lokale Speichertechnologien (Local Storage / Session Storage), damit deine persönlichen Einstellungen auf der Website reibungslos funktionieren:</p>
-      <ul style="padding-left: 18px; display: flex; flex-direction: column; gap: 6px;">
-        <li><strong>Benutzerkonto & Login:</strong> Speichert deine Sitzung, damit du als Leser angemeldet bleibst.</li>
-        <li><strong>Profilbild:</strong> Dein individuell ausgewähltes Profilbild wird sicher und lokal auf deinem Endgerät zwischengespeichert.</li>
-        <li><strong>Lesefortschritt & Metadaten:</strong> Damit deine gelesenen Kapitel und individuellen Lesestände direkt im Web-Reader synchronisiert werden.</li>
-      </ul>
-      <p>Es werden keine externen Werbe-Tracker, Social-Media-Pixel oder Analyse-Cookies eingesetzt.</p>
-    </div>
-    <button id="acceptCookieNoticeBtn" class="btn btn-primary" style="width: 100%;">Verstanden & Fortfahren</button>
+    <div class="modal-header"><h2>Datenschutz</h2></div>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Wir nutzen lokale Speichertechnologien für deine Sitzung und Lesefortschritte.</p>
+    <button id="acceptCookieNoticeBtn" class="btn btn-primary" style="width: 100%;">Verstanden</button>
   </div>
 </div>
-
 <div id="authModal" class="modal-backdrop">
   <div class="modal">
     <div class="modal-header">
@@ -307,67 +230,44 @@
       <div id="authError" class="error-msg"></div>
       <div class="form-group">
         <label for="authUsername">Benutzername</label>
-        <input type="text" id="authUsername" required placeholder="Dein Benutzername">
+        <input type="text" id="authUsername" required>
       </div>
       <div class="form-group" id="emailGroup" style="display: none;">
-        <label for="authEmail">E-Mail-Adresse</label>
-        <input type="email" id="authEmail" placeholder="deine@email.de">
+        <label for="authEmail">E-Mail</label>
+        <input type="email" id="authEmail">
       </div>
       <div class="form-group">
         <label for="authPassword">Passwort</label>
-        <input type="password" id="authPassword" required placeholder="••••••••">
+        <input type="password" id="authPassword" required>
       </div>
       <div class="form-group" id="confirmPasswordGroup" style="display: none;">
         <label for="authPasswordConfirm">Passwort bestätigen</label>
-        <input type="password" id="authPasswordConfirm" placeholder="••••••••">
+        <input type="password" id="authPasswordConfirm">
       </div>
       <button type="submit" id="authSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Anmelden</button>
     </form>
   </div>
 </div>
-
 <div id="profileModal" class="modal-backdrop">
   <div class="modal" style="max-width: 420px;">
-    <div class="modal-header" style="margin-bottom: 12px;">
-      <h2>Dein Leserkonto</h2>
+    <div class="modal-header">
+      <h2>Profil</h2>
       <button class="close-modal" data-close="profileModal">&times;</button>
     </div>
-
     <div class="profile-hero-card">
-      <div id="modalProfileAvatar" class="profile-avatar-wrapper" title="Klicken, um Foto auszuwählen">
+      <div id="modalProfileAvatar" class="profile-avatar-wrapper">
         <div id="modalAvatarInner" class="user-avatar" style="width: 100%; height: 100%; font-size: 24px;"></div>
       </div>
       <div id="modalProfileName" class="profile-display-name">Leser</div>
-      <div class="profile-display-sub">Tippe auf das Bild, um ein Profilfoto zu wählen</div>
     </div>
-
     <input type="file" id="directAvatarInput" accept="image/*" style="display: none;">
-
     <div class="profile-info-list">
-      <div class="profile-info-row">
-        <span class="profile-info-label">Benutzername</span>
-        <span id="infoUsername" class="profile-info-value">-</span>
-      </div>
-      <div class="profile-info-row">
-        <span class="profile-info-label">E-Mail-Adresse</span>
-        <span id="infoEmail" class="profile-info-value">-</span>
-      </div>
-      <div class="profile-info-row">
-        <span class="profile-info-label">Mitglied seit</span>
-        <span id="infoJoined" class="profile-info-value">-</span>
-      </div>
-      <div class="profile-info-row">
-        <span class="profile-info-label">Datenspeicherung</span>
-        <span class="profile-info-value"><span class="status-pill status-pill-yes">Aktiv (Lokal)</span></span>
-      </div>
+      <div class="profile-info-row"><span class="profile-info-label">Name</span><span id="infoUsername" class="profile-info-value">-</span></div>
+      <div class="profile-info-row"><span class="profile-info-label">E-Mail</span><span id="infoEmail" class="profile-info-value">-</span></div>
     </div>
-
-    <div style="display: flex; flex-direction: column; gap: 8px;">
-      <button id="confirmLogoutBtn" class="btn btn-secondary" style="width: 100%; background: rgba(255, 59, 48, 0.12); color: var(--danger-color); border: none;">Abmelden</button>
-    </div>
+    <button id="confirmLogoutBtn" class="btn btn-secondary" style="width: 100%; background: rgba(255, 59, 48, 0.12); color: var(--danger-color); border: none;">Abmelden</button>
   </div>
 </div>
-
 <div id="previewModal" class="modal-backdrop">
   <div class="modal modal-large">
     <div id="previewCoverContainer" style="border-radius: 6px 14px 14px 6px; min-height: 340px; position:relative; overflow:hidden; background:var(--bg-elevated); box-shadow: var(--shadow-book);"></div>
@@ -375,154 +275,53 @@
       <div>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 10px;">
           <div>
-            <span id="previewGenre" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.08em;"></span>
-            <h2 id="previewTitle" style="font-size: 21px; font-weight: 700; margin-top: 2px; letter-spacing: -0.02em; line-height: 1.2;"></h2>
-            <div id="previewAuthor" style="font-size: 13px; color: var(--text-secondary); margin-top: 2px; font-weight: 500;"></div>
+            <span id="previewGenre" style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;"></span>
+            <h2 id="previewTitle" style="font-size: 21px; font-weight: 700; margin-top: 2px;"></h2>
+            <div id="previewAuthor" style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;"></div>
           </div>
           <button class="close-modal" data-close="previewModal">&times;</button>
         </div>
-
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 12px 0;">
-          <div style="background: var(--bg-primary); padding: 7px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 10px; text-align: center;">
-            <span style="color: var(--text-muted); display: block; font-weight: 600;">Seiten</span>
-            <span id="previewPagesInfo" style="color: var(--text-primary); font-weight: 700;">50 Seiten</span>
-          </div>
-          <div style="background: var(--bg-primary); padding: 7px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 10px; text-align: center;">
-            <span style="color: var(--text-muted); display: block; font-weight: 600;">Altersfreigabe</span>
-            <span id="previewAgeInfo" style="color: var(--success-color); font-weight: 700;">Ab 16 Jahren</span>
-          </div>
-          <div style="background: var(--bg-primary); padding: 7px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 10px; text-align: center;">
-            <span style="color: var(--text-muted); display: block; font-weight: 600;">Release</span>
-            <span style="color: var(--text-primary); font-weight: 700;">20.11.2026</span>
-          </div>
-        </div>
-
-        <div style="background: var(--bg-primary); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 12px; font-size: 12px; display: flex; flex-direction: column; gap: 4px;">
-          <strong style="color: var(--text-primary);">Buchdetails:</strong>
-          <span id="previewExtraDetail" style="color: var(--text-secondary); line-height: 1.5;">Dieses eBook wurde nach höchsten Standards für moderne Web-Reader optimiert.</span>
-        </div>
-
-        <p id="previewDesc" style="font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 16px; max-height: 100px; overflow-y: auto;"></p>
+        <p id="previewDesc" style="font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 16px;"></p>
       </div>
       <div id="previewActionContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
     </div>
   </div>
 </div>
-
 <div id="passwordModal" class="modal-backdrop">
   <div class="modal" style="max-width: 360px;">
     <div class="modal-header">
-      <h2>Geschützter Bereich</h2>
+      <h2>Geschützt</h2>
       <button class="close-modal" data-close="passwordModal">&times;</button>
     </div>
-    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Bitte gib das Zugriffspasswort ein, um diesen geschützten Entwurf zu öffnen:</p>
     <form id="passwordForm">
       <div id="passwordError" class="error-msg"></div>
       <div class="form-group">
-        <input type="password" id="secretPasswordInput" required placeholder="Passwort eingeben">
+        <input type="password" id="secretPasswordInput" required placeholder="Passwort">
       </div>
-      <button type="submit" class="btn btn-primary" style="width: 100%;">Zugriff freigeben</button>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Freigeben</button>
     </form>
   </div>
 </div>
-
-<div id="impressumModal" class="modal-backdrop">
-  <div class="modal modal-legal">
-    <div class="modal-header">
-      <h2>Impressum</h2>
-      <button class="close-modal" data-close="impressumModal">&times;</button>
-    </div>
-    <div style="font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 14px;">
-      <div>
-        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">Angaben gemäß § 5 DDG</h3>
-        <p>Matteo Neumann<br>Adlerhorst 5a<br>21376 Salzhausen</p>
-      </div>
-      <div>
-        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">Kontakt</h3>
-        <p>E-Mail: blackboxbuecher@gmail.com</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="datenschutzModal" class="modal-backdrop">
-  <div class="modal modal-legal">
-    <div class="modal-header">
-      <h2>Datenschutzerklärung</h2>
-      <button class="close-modal" data-close="datenschutzModal">&times;</button>
-    </div>
-    <div style="font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 14px;">
-      <div>
-        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">1. Datenschutz auf einen Blick</h3>
-        <p>Wir erheben und verarbeiten personenbezogene Daten (wie Benutzernamen und E-Mail-Adressen) ausschließlich dann, wenn du dich freiwillig registrierst, um deine Lesefortschritte und persönlichen Leseinstellungen im Web-Reader zu sichern.</p>
-      </div>
-      <div>
-        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">2. Lokaler Speicher</h3>
-        <p>Deine Sitzungsdaten und dein Profilbild werden über den Local Storage und Session Storage deines Browsers lokal gesichert, damit die Website fehlerfrei und ohne unnötige Serverabfragen funktioniert.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="nutzungsbedingungenModal" class="modal-backdrop">
-  <div class="modal modal-legal">
-    <div class="modal-header">
-      <h2>Nutzungsbedingungen</h2>
-      <button class="close-modal" data-close="nutzungsbedingungenModal">&times;</button>
-    </div>
-    <div style="font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 14px;">
-      <div>
-        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">1. Geltungsbereich</h3>
-        <p>Diese Nutzungsbedingungen gelten für das digitale Angebot des Mikroverlags Blackbox Bücher, einschließlich aller Web-Reader, Leseproben und bereitgestellten eBooks.</p>
-      </div>
-      <div>
-        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">2. Urheberrecht & Inhalte</h3>
-        <p>Sämtliche auf dieser Website veröffentlichten Texte, Cover, Grafiken und Leseproben unterliegen dem deutschen Urheberrecht. Eine unautorisierte Vervielfältigung, Verbreitung oder kommerzielle Nutzung ist ohne vorherige schriftliche Genehmigung untersagt.</p>
-      </div>
-      <div>
-        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">3. Nutzerkonto & Sicherheit</h3>
-        <p>Du bist dafür verantwortlich, deine Zugangsdaten (Passwort) vertraulich zu behandeln und sicher aufzubewahren. Der Betreiber übernimmt keine Haftung für Schäden, die durch unbefugte Nutzung des Accounts entstehen.</p>
-      </div>
-      <div>
-        <h3 style="font-size: 15px; color: var(--text-primary); margin-bottom: 4px;">4. Haftungsausschluss</h3>
-        <p>Wir übernehmen keine Garantie für die ständige, ununterbrochene Erreichbarkeit der Online-Dienste und externer Verknüpfungen.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
+<div id="impressumModal" class="modal-backdrop"><div class="modal modal-legal"><div class="modal-header"><h2>Impressum</h2><button class="close-modal" data-close="impressumModal">&times;</button></div><p>Matteo Neumann, Adlerhorst 5a, 21376 Salzhausen</p></div></div>
+<div id="datenschutzModal" class="modal-backdrop"><div class="modal modal-legal"><div class="modal-header"><h2>Datenschutz</h2><button class="close-modal" data-close="datenschutzModal">&times;</button></div><p>Datenschutzerklärung...</p></div></div>
+<div id="nutzungsbedingungenModal" class="modal-backdrop"><div class="modal modal-legal"><div class="modal-header"><h2>Nutzungsbedingungen</h2><button class="close-modal" data-close="nutzungsbedingungenModal">&times;</button></div><p>Bedingungen...</p></div></div>
 <div id="toast" class="toast"></div>
-
 <script>
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4EDtJo07Vx-_wNgjuhVxsAqKg8VXXs2SP-TFiaMDiN4GY0OqnED_nV8uV6eVWGWb8/exec";
   const SESSION_KEY = 'bb_drive_session_v15';
   const COOKIE_SEEN_KEY = 'bb_cookie_notice_seen';
-
   let books = [];
   let categoryLabels = { N: 'Kostenlos', J: 'Kostenpflichtig', P: 'In Entwicklung', Z: 'Geschützt' };
   let featuredBook = null;
   let currentSearch = '';
-
-  function loadStoredSession() {
-    try {
-      return JSON.parse(localStorage.getItem(SESSION_KEY)) ||
-             JSON.parse(sessionStorage.getItem(SESSION_KEY)) ||
-             null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  let currentUser = loadStoredSession();
+  let currentUser = JSON.parse(localStorage.getItem(SESSION_KEY)) || JSON.parse(sessionStorage.getItem(SESSION_KEY)) || null;
   let authMode = 'login';
   let activeBookForPassword = null;
-
   const bookGrid = document.getElementById('bookGrid');
   const openAuthBtn = document.getElementById('openAuthBtn');
   const profileTrigger = document.getElementById('profileTrigger');
   const navUsernameDisplay = document.getElementById('navUsernameDisplay');
   const navUserAvatar = document.getElementById('navUserAvatar');
-  
   const authModal = document.getElementById('authModal');
   const profileModal = document.getElementById('profileModal');
   const previewModal = document.getElementById('previewModal');
@@ -531,7 +330,6 @@
   const datenschutzModal = document.getElementById('datenschutzModal');
   const nutzungsbedingungenModal = document.getElementById('nutzungsbedingungenModal');
   const cookieModalBackdrop = document.getElementById('cookieModalBackdrop');
-  
   const authForm = document.getElementById('authForm');
   const passwordForm = document.getElementById('passwordForm');
   const authError = document.getElementById('authError');
@@ -541,120 +339,65 @@
   const authSubmitBtn = document.getElementById('authSubmitBtn');
   const emailGroup = document.getElementById('emailGroup');
   const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
-  
   const previewCoverContainer = document.getElementById('previewCoverContainer');
   const previewTitle = document.getElementById('previewTitle');
   const previewAuthor = document.getElementById('previewAuthor');
   const previewGenre = document.getElementById('previewGenre');
   const previewDesc = document.getElementById('previewDesc');
-  const previewPagesInfo = document.getElementById('previewPagesInfo');
-  const previewAgeInfo = document.getElementById('previewAgeInfo');
-  const previewExtraDetail = document.getElementById('previewExtraDetail');
   const previewActionContainer = document.getElementById('previewActionContainer');
   const searchInput = document.getElementById('searchInput');
   const toast = document.getElementById('toast');
-
-  if (!localStorage.getItem(COOKIE_SEEN_KEY)) {
-    setTimeout(() => cookieModalBackdrop.classList.add('active'), 300);
-  }
-
-  document.getElementById('acceptCookieNoticeBtn').onclick = () => {
-    localStorage.setItem(COOKIE_SEEN_KEY, 'true');
-    cookieModalBackdrop.classList.remove('active');
-    showToast('Hinweis akzeptiert.');
-  };
-
-  function saveUserSession(userObj) {
-    if (!userObj) return;
-    localStorage.setItem(SESSION_KEY, JSON.stringify(userObj));
-  }
-
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  }
-
+  if (!localStorage.getItem(COOKIE_SEEN_KEY)) { setTimeout(() => cookieModalBackdrop.classList.add('active'), 300); }
+  document.getElementById('acceptCookieNoticeBtn').onclick = () => { localStorage.setItem(COOKIE_SEEN_KEY, 'true'); cookieModalBackdrop.classList.remove('active'); };
+  function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
   async function callDriveBackend(payload) {
     try {
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-      });
+      const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
       return await response.json();
     } catch (err) {
-      console.error(err);
-      return { success: false, error: "Netzwerkfehler zur Google-Tabelle." };
+      return { success: false, error: "Netzwerkfehler." };
     }
   }
-
   async function loadInitialData() {
     try {
-      // Wir unterstützen hier sowohl getAppData als auch getBooks, um Kompatibilität mit dem alten Skript zu garantieren
       let res = await callDriveBackend({ action: 'getAppData' });
-      if (!res || !res.success || (!res.books && !Array.isArray(res))) {
-        res = await callDriveBackend({ action: 'getBooks' });
-      }
-
+      if (!res || !res.success || (!res.books && !Array.isArray(res))) { res = await callDriveBackend({ action: 'getBooks' }); }
       let rawBooks = [];
       if (res) {
         if (Array.isArray(res)) rawBooks = res;
         else if (res.books && Array.isArray(res.books)) rawBooks = res.books;
         else if (res.data && Array.isArray(res.data)) rawBooks = res.data;
-
-        if (res.settings) {
-          categoryLabels = { ...categoryLabels, ...res.settings };
-        }
+        if (res.settings) categoryLabels = { ...categoryLabels, ...res.settings };
       }
-
       if (rawBooks.length > 0) {
-        books = rawBooks.map(b => ({
-          ...b,
-          pages: b.pages || 50,
-          ageRating: b.ageRating || 'Ab 16 Jahren'
-        }));
+        books = rawBooks.map(b => ({ ...b, pages: b.pages || 50, ageRating: b.ageRating || 'Ab 16 Jahren' }));
       }
-    } catch (err) {
-      console.error("Datenbankverbindung fehlgeschlagen:", err);
-      showToast("Verbindungsfehler zur Datenbank.");
-    }
+    } catch (err) { console.error(err); }
     updateHeroSection();
     renderBooks();
   }
-
   function updateHeroSection() {
     const heroFeaturedBtn = document.getElementById('heroFeaturedBtn');
     if (books.length === 0) {
-      document.getElementById('heroTitle').textContent = "Keine eBooks verfügbar";
-      document.getElementById('heroDesc').textContent = "Füge über den Admin-Bereich deine ersten eBooks hinzu, damit sie hier angezeigt werden.";
+      document.getElementById('heroTitle').textContent = "Keine eBooks";
+      document.getElementById('heroDesc').textContent = "Füge über die Verwaltung eBooks hinzu.";
       document.getElementById('heroCoverImg').src = "";
       if (heroFeaturedBtn) heroFeaturedBtn.style.display = 'none';
       return;
     }
-    
     if (heroFeaturedBtn) heroFeaturedBtn.style.display = 'inline-flex';
     featuredBook = books.find(b => b.isFeatured === true || b.isFeatured === "true" || b.isFeatured === "TRUE") || books[0];
     document.getElementById('heroTitle').textContent = featuredBook.title;
     document.getElementById('heroDesc').textContent = featuredBook.description;
     document.getElementById('heroCoverImg').src = featuredBook.cover;
-    document.getElementById('heroCoverImg').alt = featuredBook.title;
   }
-
   function renderAvatar(containerEl, user) {
     if (!containerEl) return;
     const name = (user && (user.username || user.name)) || 'User';
     const avatarUrl = (user && user.avatar) || '';
-    if (avatarUrl) {
-      containerEl.innerHTML = `<img src="${avatarUrl}" alt="${name}">`;
-    } else {
-      const parts = name.trim().split(' ');
-      const initials = parts.length > 1 
-        ? (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase() 
-        : name.substring(0, 2).toUpperCase();
-      containerEl.textContent = initials;
-    }
+    if (avatarUrl) { containerEl.innerHTML = `<img src="${avatarUrl}" alt="${name}">`; } 
+    else { containerEl.textContent = name.substring(0, 2).toUpperCase(); }
   }
-
   function updateAuthUI() {
     if (currentUser) {
       openAuthBtn.style.display = 'none';
@@ -667,337 +410,140 @@
     }
     renderBooks();
   }
-
   function renderBooks() {
     bookGrid.innerHTML = '';
-    
     if (books.length === 0) {
-      bookGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0;">Es sind aktuell keine eBooks in der Datenbank hinterlegt.</p>';
+      bookGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0;">Keine eBooks in der Datenbank.</p>';
       return;
     }
-
     const purchases = (currentUser && currentUser.purchases) || [];
     const progressMap = (currentUser && currentUser.progress) || {};
-
-    const filteredBooks = books.filter(book => {
-      const matchesSearch = (book.title || '').toLowerCase().includes(currentSearch) || (book.genre || '').toLowerCase().includes(currentSearch);
-      return matchesSearch;
-    });
-
+    const filteredBooks = books.filter(book => (book.title || '').toLowerCase().includes(currentSearch) || (book.genre || '').toLowerCase().includes(currentSearch));
     if (filteredBooks.length === 0) {
-      bookGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0;">Keine eBooks passend zu deiner Suche gefunden.</p>';
+      bookGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0;">Keine Treffer.</p>';
       return;
     }
-
     filteredBooks.forEach(book => {
       const card = document.createElement('article');
       card.className = 'book-card';
       const progress = progressMap[book.id] || 0;
       const isOwned = purchases.includes(book.id);
-
-      const progressBadge = progress > 0 
-        ? `<div class="reading-progress-badge">${progress}% gelesen</div>` 
-        : '';
-
+      const progressBadge = progress > 0 ? `<div class="reading-progress-badge">${progress}% gelesen</div>` : '';
       let statusTagHtml = '';
       const labelText = categoryLabels[book.status] || book.status;
-
-      if (book.status === 'N') {
-        statusTagHtml = isOwned ? `<span class="tag-owned">Freigeschaltet</span>` : `<span class="tag-free">${labelText}</span>`;
-      } else if (book.status === 'P') {
-        statusTagHtml = `<span class="tag-soon">${labelText}</span>`;
-      } else if (book.status === 'J') {
-        const priceLabel = book.price ? `${book.price}` : labelText;
-        statusTagHtml = `<span class="tag-buy">${priceLabel}</span>`;
-      } else if (book.status === 'Z') {
-        statusTagHtml = `<span class="tag-secret">${labelText}</span>`;
-      }
-
-      card.innerHTML = `
-        <div class="book-cover-wrapper">
-          <div class="book-cover">
-            ${progressBadge}
-            <img src="${book.cover}" alt="${book.title}">
-          </div>
-        </div>
-        <div class="book-body">
-          <div class="book-meta">${book.genre}</div>
-          <h3 class="book-title">${book.title}</h3>
-          <div class="book-author">${book.author}</div>
-          <div class="book-footer">
-            ${statusTagHtml}
-            <span class="book-action-hint">Details →</span>
-          </div>
-        </div>
-      `;
+      if (book.status === 'N') { statusTagHtml = isOwned ? `<span class="tag-owned">Freigeschaltet</span>` : `<span class="tag-free">${labelText}</span>`; }
+      else if (book.status === 'P') { statusTagHtml = `<span class="tag-soon">${labelText}</span>`; }
+      else if (book.status === 'J') { statusTagHtml = `<span class="tag-buy">${book.price || labelText}</span>`; }
+      else if (book.status === 'Z') { statusTagHtml = `<span class="tag-secret">${labelText}</span>`; }
+      card.innerHTML = `<div class="book-cover-wrapper"><div class="book-cover">${progressBadge}<img src="${book.cover}" alt=""></div></div><div class="book-body"><div class="book-meta">${book.genre}</div><h3 class="book-title">${book.title}</h3><div class="book-author">${book.author}</div><div class="book-footer">${statusTagHtml}<span class="book-action-hint">Details →</span></div></div>`;
       card.onclick = () => handleBookClick(book);
       bookGrid.appendChild(card);
     });
   }
-
-  const heroFeaturedBtn = document.getElementById('heroFeaturedBtn');
-  if (heroFeaturedBtn) {
-    heroFeaturedBtn.onclick = () => {
-      if (featuredBook) handleBookClick(featuredBook);
-    };
-  }
-  
-  const featuredCoverTrigger = document.getElementById('featuredCoverTrigger');
-  if (featuredCoverTrigger) {
-    featuredCoverTrigger.onclick = () => {
-      if (featuredBook) handleBookClick(featuredBook);
-    };
-  }
-
-  searchInput.addEventListener('input', (e) => {
-    currentSearch = e.target.value.toLowerCase().trim();
-    renderBooks();
-  });
-
+  document.getElementById('heroFeaturedBtn').onclick = () => { if (featuredBook) handleBookClick(featuredBook); };
+  document.getElementById('featuredCoverTrigger').onclick = () => { if (featuredBook) handleBookClick(featuredBook); };
+  searchInput.addEventListener('input', (e) => { currentSearch = e.target.value.toLowerCase().trim(); renderBooks(); });
   function handleBookClick(book) {
-    if (book.status === 'Z') {
-      activeBookForPassword = book;
-      secretPasswordInput.value = '';
-      passwordError.style.display = 'none';
-      openModal(passwordModal);
-    } else {
-      openPreview(book);
-    }
+    if (book.status === 'Z') { activeBookForPassword = book; secretPasswordInput.value = ''; passwordError.style.display = 'none'; openModal(passwordModal); }
+    else { openPreview(book); }
   }
-
   passwordForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    if (secretPasswordInput.value === '2255') {
-      closeModal(passwordModal);
-      showToast('Passwort korrekt! Zugriff gewährt.');
-      openPreview(activeBookForPassword);
-    } else {
-      passwordError.textContent = 'Falsches Passwort!';
-      passwordError.style.display = 'block';
-    }
+    if (secretPasswordInput.value === '2255') { closeModal(passwordModal); showToast('Zugriff gewährt'); openPreview(activeBookForPassword); }
+    else { passwordError.textContent = 'Falsches Passwort'; passwordError.style.display = 'block'; }
   });
-
   function openPreview(book) {
     previewTitle.textContent = book.title;
     previewAuthor.textContent = `von ${book.author}`;
     previewGenre.textContent = book.genre;
     previewDesc.textContent = book.description;
-    
-    previewPagesInfo.textContent = `${book.pages || 50} Seiten`;
-    previewAgeInfo.textContent = book.ageRating || 'Ab 16 Jahren';
-
-    if (book.detailText) {
-      previewExtraDetail.textContent = book.detailText;
-    }
-
     previewCoverContainer.innerHTML = `<img src="${book.cover}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" alt="">`;
-
     previewActionContainer.innerHTML = '';
-
     if (book.status === 'P') {
-      const infoBtn = document.createElement('button');
-      infoBtn.className = 'btn btn-secondary';
-      infoBtn.style.width = '100%';
-      infoBtn.style.cursor = 'default';
-      infoBtn.textContent = `${categoryLabels['P'] || 'In Entwicklung'} – Bald verfügbar`;
-      previewActionContainer.appendChild(infoBtn);
-    } 
-    else if (book.status === 'J') {
-      if (book.readerPage && book.readerPage !== '#') {
-        const sampleBtn = document.createElement('a');
-        sampleBtn.className = 'btn btn-secondary';
-        sampleBtn.style.width = '100%';
-        sampleBtn.textContent = 'Leseprobe ansehen';
-        sampleBtn.href = book.readerPage;
-        sampleBtn.target = '_blank';
-        previewActionContainer.appendChild(sampleBtn);
-      }
-
-      const buyBtn = document.createElement('a');
-      buyBtn.className = 'btn btn-success';
-      buyBtn.style.width = '100%';
-      buyBtn.textContent = book.price ? `🛒 Kaufen (${book.price})` : `🛒 ${categoryLabels['J'] || 'Kaufen'}`;
-      buyBtn.href = book.buyUrl || book.readerPage || '#';
-      buyBtn.target = '_blank';
-      previewActionContainer.appendChild(buyBtn);
-    } 
-    else if (book.status === 'N' || book.status === 'Z') {
-      const readBtn = document.createElement('a');
-      readBtn.className = 'btn btn-primary';
-      readBtn.style.width = '100%';
-      readBtn.textContent = '📖 Buch lesen';
-      readBtn.href = book.readerPage;
-      readBtn.target = '_blank';
-      previewActionContainer.appendChild(readBtn);
+      const btn = document.createElement('button'); btn.className = 'btn btn-secondary'; btn.style.width = '100%'; btn.textContent = 'Bald verfügbar';
+      previewActionContainer.appendChild(btn);
+    } else if (book.status === 'J') {
+      const btn = document.createElement('a'); btn.className = 'btn btn-success'; btn.style.width = '100%'; btn.textContent = 'Kaufen'; btn.href = book.buyUrl || book.readerPage || '#'; btn.target = '_blank';
+      previewActionContainer.appendChild(btn);
+    } else {
+      const btn = document.createElement('a'); btn.className = 'btn btn-primary'; btn.style.width = '100%'; btn.textContent = 'Buch lesen'; btn.href = book.readerPage; btn.target = '_blank';
+      previewActionContainer.appendChild(btn);
     }
-
     openModal(previewModal);
   }
-
   function openModal(modal) { if (modal) modal.classList.add('active'); }
   function closeModal(modal) { if (modal) modal.classList.remove('active'); }
-
-  document.querySelectorAll('.close-modal, [data-close]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.getAttribute('data-close');
-      if (targetId) closeModal(document.getElementById(targetId));
-    });
-  });
-
+  document.querySelectorAll('.close-modal, [data-close]').forEach(btn => { btn.onclick = () => closeModal(document.getElementById(btn.getAttribute('data-close'))); });
   document.getElementById('openImpressumBtn').onclick = () => openModal(impressumModal);
   document.getElementById('openDatenschutzBtn').onclick = () => openModal(datenschutzModal);
   document.getElementById('openNutzungsbedingungenBtn').onclick = () => openModal(nutzungsbedingungenModal);
-
   openAuthBtn.onclick = () => { authError.style.display = 'none'; openModal(authModal); };
-
-  function populateProfileModal() {
-    if (!currentUser) return;
-    const uname = currentUser.username || currentUser.name || 'Unbekannt';
-    const uemail = currentUser.email || 'Nicht hinterlegt';
-    const ujoined = currentUser.joined || new Date().toLocaleDateString('de-DE');
-
-    document.getElementById('modalProfileName').textContent = uname;
-    document.getElementById('infoUsername').textContent = uname;
-    document.getElementById('infoEmail').textContent = uemail;
-    document.getElementById('infoJoined').textContent = ujoined;
-
-    renderAvatar(document.getElementById('modalAvatarInner'), currentUser);
-  }
-
   profileTrigger.onclick = () => {
-    populateProfileModal();
+    document.getElementById('modalProfileName').textContent = currentUser.username;
+    document.getElementById('infoUsername').textContent = currentUser.username;
+    document.getElementById('infoEmail').textContent = currentUser.email || '-';
+    renderAvatar(document.getElementById('modalAvatarInner'), currentUser);
     openModal(profileModal);
   };
-
-  document.getElementById('modalProfileAvatar').onclick = () => {
-    document.getElementById('directAvatarInput').click();
-  };
-
+  document.getElementById('modalProfileAvatar').onclick = () => document.getElementById('directAvatarInput').click();
   document.getElementById('directAvatarInput').addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
       const reader = new FileReader();
-      reader.onload = function(uploadEvent) {
-        currentUser.avatar = uploadEvent.target.result;
-        saveUserSession(currentUser);
+      reader.onload = function(evt) {
+        currentUser.avatar = evt.target.result;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
         renderAvatar(document.getElementById('modalAvatarInner'), currentUser);
         updateAuthUI();
-        showToast('Profilbild erfolgreich aktualisiert!');
+        showToast('Aktualisiert');
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(e.target.files[0]);
     }
   });
-
   document.getElementById('confirmLogoutBtn').onclick = () => {
-    currentUser = null;
-    localStorage.removeItem(SESSION_KEY);
-    sessionStorage.removeItem(SESSION_KEY);
-    closeModal(profileModal);
-    updateAuthUI();
-    showToast('Erfolgreich abgemeldet.');
+    currentUser = null; localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(SESSION_KEY);
+    closeModal(profileModal); updateAuthUI(); showToast('Abgemeldet');
   };
-
   document.querySelectorAll('.auth-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
+    tab.onclick = () => {
       document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       authMode = tab.getAttribute('data-mode');
       if (authMode === 'register') {
-        authModalTitle.textContent = 'Registrieren';
-        authSubmitBtn.textContent = 'Registrieren';
-        emailGroup.style.display = 'block';
-        confirmPasswordGroup.style.display = 'block';
-        document.getElementById('authEmail').required = true;
+        authModalTitle.textContent = 'Registrieren'; authSubmitBtn.textContent = 'Registrieren';
+        emailGroup.style.display = 'block'; confirmPasswordGroup.style.display = 'block'; document.getElementById('authEmail').required = true;
       } else {
-        authModalTitle.textContent = 'Anmelden';
-        authSubmitBtn.textContent = 'Anmelden';
-        emailGroup.style.display = 'none';
-        confirmPasswordGroup.style.display = 'none';
-        document.getElementById('authEmail').required = false;
+        authModalTitle.textContent = 'Anmelden'; authSubmitBtn.textContent = 'Anmelden';
+        emailGroup.style.display = 'none'; confirmPasswordGroup.style.display = 'none'; document.getElementById('authEmail').required = false;
       }
       authError.style.display = 'none';
-    });
+    };
   });
-
-  authForm.addEventListener('submit', async (e) => {
+  authForm.onsubmit = async (e) => {
     e.preventDefault();
     const username = document.getElementById('authUsername').value.trim();
     const password = document.getElementById('authPassword').value;
     authError.style.display = 'none';
     authSubmitBtn.disabled = true;
-    const originalText = authSubmitBtn.textContent;
-    authSubmitBtn.textContent = 'Verarbeite...';
-
     try {
       if (authMode === 'register') {
         const email = document.getElementById('authEmail').value.trim();
-        const passwordConfirm = document.getElementById('authPasswordConfirm').value;
-
-        if (password !== passwordConfirm) {
-          authError.textContent = 'Die Passwörter stimmen nicht überein.';
-          authError.style.display = 'block';
-          return;
-        }
-
-        const res = await callDriveBackend({
-          action: 'register',
-          username: username,
-          email: email,
-          password: password
-        });
-
-        if (!res.success) {
-          authError.textContent = res.error || 'Registrierung fehlgeschlagen.';
-          authError.style.display = 'block';
-          return;
-        }
-
-        currentUser = res.user;
-        if (!currentUser.username) currentUser.username = username;
-        if (!currentUser.email) currentUser.email = email;
-        saveUserSession(currentUser);
-        closeModal(authModal);
-        authForm.reset();
-        updateAuthUI();
-        showToast(`Willkommen, ${username}!`);
+        const p2 = document.getElementById('authPasswordConfirm').value;
+        if (password !== p2) { authError.textContent = 'Passwörter stimmen nicht überein'; authError.style.display = 'block'; authSubmitBtn.disabled = false; return; }
+        const res = await callDriveBackend({ action: 'register', username, email, password });
+        if (!res.success) { authError.textContent = res.error || 'Fehler'; authError.style.display = 'block'; authSubmitBtn.disabled = false; return; }
+        currentUser = res.user; localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        closeModal(authModal); authForm.reset(); updateAuthUI(); showToast('Willkommen');
       } else {
-        const res = await callDriveBackend({
-          action: 'login',
-          username: username,
-          password: password
-        });
-
-        if (!res.success) {
-          authError.textContent = res.error || 'Anmeldung fehlgeschlagen.';
-          authError.style.display = 'block';
-          return;
-        }
-
-        currentUser = res.user;
-        if (!currentUser.username) currentUser.username = username;
-        saveUserSession(currentUser);
-        closeModal(authModal);
-        authForm.reset();
-        updateAuthUI();
-        showToast(`Willkommen zurück, ${currentUser.username}!`);
+        const res = await callDriveBackend({ action: 'login', username, password });
+        if (!res.success) { authError.textContent = res.error || 'Fehler'; authError.style.display = 'block'; authSubmitBtn.disabled = false; return; }
+        currentUser = res.user; localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        closeModal(authModal); authForm.reset(); updateAuthUI(); showToast('Willkommen zurück');
       }
-    } catch (err) {
-      authError.textContent = 'Verbindungsfehler zur Google-Tabelle.';
-      authError.style.display = 'block';
-    } finally {
-      authSubmitBtn.disabled = false;
-      authSubmitBtn.textContent = originalText;
-    }
-  });
-
+    } catch (err) { authError.textContent = 'Netzwerkfehler'; authError.style.display = 'block'; }
+    authSubmitBtn.disabled = false;
+  };
   updateAuthUI();
-  
-  document.body.classList.remove('loaded');
-  loadInitialData().then(() => {
-    setTimeout(() => {
-      document.body.classList.add('loaded');
-    }, 1000);
-  });
+  loadInitialData().then(() => setTimeout(() => document.body.classList.add('loaded'), 1000));
 </script>
 </body>
 </html>
