@@ -122,6 +122,13 @@
   .modal-backdrop.active .modal { transform: scale(1) translateY(0); opacity: 1; }
   .modal-large { max-width: 860px; display: grid; grid-template-columns: 260px 1fr; gap: 28px; }
   .modal-legal { max-width: 620px; }
+  .legal-text { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .legal-text h3 { font-size: 14px; color: var(--text-primary); margin: 14px 0 4px; }
+  .legal-text h3:first-child { margin-top: 0; }
+  .legal-text a, .link-inline { color: var(--accent-primary); cursor: pointer; text-decoration: none; }
+  .legal-text a:hover, .link-inline:hover { text-decoration: underline; }
+  .consent-label { display: flex !important; gap: 8px; align-items: flex-start; font-weight: 500 !important; line-height: 1.45; }
+  .form-group .consent-label input { width: auto; margin-top: 3px; flex-shrink: 0; }
   @media(max-width: 768px) { .modal-large { grid-template-columns: 1fr; max-width: 100%; } .modal { padding: 20px; } }
   .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .modal-header h2 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
@@ -212,15 +219,16 @@
     </div>
   </footer>
 </div>
- 
+
 <div id="cookieModalBackdrop" class="modal-backdrop" style="z-index: 350;">
   <div class="modal" style="max-width: 500px;">
-    <div class="modal-header"><h2>Datenschutz</h2></div>
-    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Wir nutzen lokale Speichertechnologien für deine Sitzung und Lesefortschritte.</p>
+    <div class="modal-header"><h2>Hinweis zum lokalen Speicher</h2></div>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">Diese Seite ist werbefrei und setzt <strong>keine Tracking- oder Werbe-Cookies</strong>. Im lokalen Speicher deines Browsers werden nur technisch notwendige Daten abgelegt: deine Anmeldung, freigeschaltete Bücher und dein Lesefortschritt.</p>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">Mehr dazu in der <a class="link-inline" id="cookieToPrivacy">Datenschutzerklärung</a>.</p>
     <button id="acceptCookieNoticeBtn" class="btn btn-primary" style="width: 100%;">Verstanden</button>
   </div>
 </div>
- 
+
 <div id="authModal" class="modal-backdrop">
   <div class="modal">
     <div class="modal-header">
@@ -249,11 +257,17 @@
         <label for="authPasswordConfirm">Passwort bestätigen</label>
         <input type="password" id="authPasswordConfirm">
       </div>
+      <div class="form-group" id="consentGroup" style="display: none;">
+        <label class="consent-label">
+          <input type="checkbox" id="authConsent">
+          <span>Ich habe die <a class="link-inline" id="consentPrivacyLink">Datenschutzerklärung</a> und die <a class="link-inline" id="consentTermsLink">Nutzungsbedingungen</a> gelesen und akzeptiere sie.</span>
+        </label>
+      </div>
       <button type="submit" id="authSubmitBtn" class="btn btn-primary" style="width: 100%; margin-top: 6px;">Anmelden</button>
     </form>
   </div>
 </div>
- 
+
 <div id="profileModal" class="modal-backdrop">
   <div class="modal" style="max-width: 420px;">
     <div class="modal-header">
@@ -274,7 +288,7 @@
     <button id="confirmLogoutBtn" class="btn btn-secondary" style="width: 100%; background: rgba(255, 59, 48, 0.12); color: var(--danger-color); border: none;">Abmelden</button>
   </div>
 </div>
- 
+
 <div id="previewModal" class="modal-backdrop">
   <div class="modal modal-large">
     <div id="previewCoverContainer" style="border-radius: 6px 14px 14px 6px; min-height: 340px; position:relative; overflow:hidden; background:var(--bg-elevated); box-shadow: var(--shadow-book);"></div>
@@ -294,7 +308,7 @@
     </div>
   </div>
 </div>
- 
+
 <div id="passwordModal" class="modal-backdrop">
   <div class="modal" style="max-width: 380px;">
     <div class="modal-header">
@@ -311,19 +325,77 @@
     </form>
   </div>
 </div>
- 
-<div id="impressumModal" class="modal-backdrop"><div class="modal modal-legal"><div class="modal-header"><h2>Impressum</h2><button class="close-modal" data-close="impressumModal">&times;</button></div><p>Matteo Neumann <br> blackboxbuecher@gmail.com <br> Adlerhorst 5a <br> 21376 Salzhausen</p></div></div>
-<div id="datenschutzModal" class="modal-backdrop"><div class="modal modal-legal"><div class="modal-header"><h2>Datenschutz</h2><button class="close-modal" data-close="datenschutzModal">&times;</button></div><p>Datenschutzerklärung...</p></div></div>
-<div id="nutzungsbedingungenModal" class="modal-backdrop"><div class="modal modal-legal"><div class="modal-header"><h2>Nutzungsbedingungen</h2><button class="close-modal" data-close="nutzungsbedingungenModal">&times;</button></div><p>Bedingungen...</p></div></div>
- 
+
+<div id="impressumModal" class="modal-backdrop"><div class="modal modal-legal">
+  <div class="modal-header"><h2>Impressum</h2><button class="close-modal" data-close="impressumModal">&times;</button></div>
+  <div class="legal-text">
+    <h3>Angaben gemäß § 5 DDG</h3>
+    <p>Matteo Neumann<br>Adlerhorst 5a<br>21376 Salzhausen</p>
+    <h3>Kontakt</h3>
+    <p>E-Mail: <a href="mailto:blackboxbuecher@gmail.com">blackboxbuecher@gmail.com</a></p>
+    <h3>Verantwortlich für den Inhalt (§ 18 Abs. 2 MStV)</h3>
+    <p>Matteo Neumann, Anschrift wie oben</p>
+  </div>
+</div></div>
+
+<div id="datenschutzModal" class="modal-backdrop"><div class="modal modal-legal">
+  <div class="modal-header"><h2>Datenschutzerklärung</h2><button class="close-modal" data-close="datenschutzModal">&times;</button></div>
+  <div class="legal-text">
+    <h3>1. Verantwortlicher</h3>
+    <p>Matteo Neumann, Adlerhorst 5a, 21376 Salzhausen, E-Mail: blackboxbuecher@gmail.com</p>
+
+    <h3>2. Werbefrei, kein Tracking</h3>
+    <p>Diese Seite enthält keine Werbung, keine Analyse- oder Tracking-Tools und keine eingebundenen Drittinhalte wie Schriftarten oder Videos.</p>
+
+    <h3>3. Bücherkatalog (Google Apps Script)</h3>
+    <p>Die Liste der eBooks wird beim Aufruf der Seite von einem Google-Apps-Script-Dienst (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland; Muttergesellschaft Google LLC, USA) geladen. Dabei erhält Google technisch bedingt deine IP-Adresse und Browserdaten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Betrieb und Pflege des Katalogs). Eine Datenübermittlung in die USA kann nicht ausgeschlossen werden; Google ist nach dem EU-US Data Privacy Framework zertifiziert.</p>
+
+    <h3>4. Konto: Registrierung und Anmeldung</h3>
+    <p>Bei Registrierung und Anmeldung werden Benutzername, E-Mail-Adresse und Passwort an denselben Google-Apps-Script-Dienst übermittelt und dort verarbeitet, um dein Konto bereitzustellen (Art. 6 Abs. 1 lit. b DSGVO). Dein Konto kann auf Wunsch gelöscht werden: Schreibe dazu an die oben genannte E-Mail-Adresse.</p>
+
+    <h3>5. Freischalt-Codes</h3>
+    <p>Beim Einlösen eines Freischalt-Codes werden Code und Buch-ID an den Dienst übermittelt, geprüft und der Code als verbraucht markiert (Art. 6 Abs. 1 lit. b DSGVO).</p>
+
+    <h3>6. Lokaler Speicher (kein Tracking)</h3>
+    <p>Wir setzen keine Cookies zu Analyse- oder Werbezwecken ein. Im lokalen Speicher deines Browsers (localStorage/sessionStorage) liegen: deine Sitzung, freigeschaltete Bücher, dein Lesefortschritt, dein Profilbild und der Vermerk, dass du den Speicher-Hinweis gesehen hast. Das ist technisch erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Du kannst die Daten jederzeit durch Abmelden oder in den Browsereinstellungen löschen.</p>
+
+    <h3>7. Kontakt per E-Mail</h3>
+    <p>Wenn du uns schreibst, verarbeiten wir deine Nachricht und Adresse zur Bearbeitung deiner Anfrage (Art. 6 Abs. 1 lit. f DSGVO).</p>
+
+    <h3>8. Externe Links</h3>
+    <p>Beim Öffnen eines Buches oder Kauflinks wirst du zu einer externen Seite weitergeleitet. Für deren Datenverarbeitung ist der jeweilige Betreiber verantwortlich.</p>
+
+    <h3>9. Deine Rechte</h3>
+    <p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15–21 DSGVO). Du kannst dich bei einer Datenschutzaufsichtsbehörde beschweren, zuständig ist die Landesbeauftragte für den Datenschutz Niedersachsen, Prinzenstraße 5, 30159 Hannover.</p>
+  </div>
+</div></div>
+
+<div id="nutzungsbedingungenModal" class="modal-backdrop"><div class="modal modal-legal">
+  <div class="modal-header"><h2>Nutzungsbedingungen</h2><button class="close-modal" data-close="nutzungsbedingungenModal">&times;</button></div>
+  <div class="legal-text">
+    <h3>1. Geltungsbereich</h3>
+    <p>Diese Bedingungen gelten für die Nutzung von Blackbox Bücher (Matteo Neumann, Adlerhorst 5a, 21376 Salzhausen).</p>
+    <h3>2. Kostenlos und werbefrei</h3>
+    <p>Die Nutzung der Seite und das Lesen der angebotenen eBooks sind kostenlos. Es gibt keine Werbung.</p>
+    <h3>3. Nutzungsrechte</h3>
+    <p>Die eBooks dürfen privat gelesen werden. Vervielfältigung, Weitergabe und öffentliche Wiedergabe sind ohne Zustimmung der Rechteinhaber nicht gestattet.</p>
+    <h3>4. Freischalt-Codes</h3>
+    <p>Jeder Freischalt-Code kann nur einmal eingelöst werden.</p>
+    <h3>5. Konto</h3>
+    <p>Du bist für die Geheimhaltung deines Passworts verantwortlich. Bei Missbrauch kann ein Konto gesperrt werden.</p>
+    <h3>6. Haftung</h3>
+    <p>Wir bemühen uns um eine durchgehende Verfügbarkeit, können diese aber nicht garantieren. Die gesetzliche Haftung bleibt unberührt.</p>
+  </div>
+</div></div>
+
 <div id="toast" class="toast"></div>
- 
+
 <script>
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4EDtJo07Vx-_wNgjuhVxsAqKg8VXXs2SP-TFiaMDiN4GY0OqnED_nV8uV6eVWGWb8/exec";
   const SESSION_KEY = 'bb_drive_session_v15';
   const COOKIE_SEEN_KEY = 'bb_cookie_notice_seen';
   const UNLOCKED_KEY = 'bb_unlocked_books';
- 
+
   // Freigeschaltete Bücher werden auf diesem Gerät im Browser gemerkt.
   function getUnlockedMap() {
     try { return JSON.parse(localStorage.getItem(UNLOCKED_KEY)) || {}; } catch (e) { return {}; }
@@ -333,7 +405,7 @@
     map[bookId] = { readerPage: readerPage };
     localStorage.setItem(UNLOCKED_KEY, JSON.stringify(map));
   }
- 
+
   let books = [];
   let loadError = null;
   let categoryLabels = { N: 'Kostenlos', J: 'Kostenpflichtig', P: 'In Entwicklung', Z: 'Freischalt Code' };
@@ -345,7 +417,7 @@
   } catch (e) { currentUser = null; }
   let authMode = 'login';
   let activeBookForPassword = null;
- 
+
   const bookGrid = document.getElementById('bookGrid');
   const openAuthBtn = document.getElementById('openAuthBtn');
   const profileTrigger = document.getElementById('profileTrigger');
@@ -368,6 +440,7 @@
   const authSubmitBtn = document.getElementById('authSubmitBtn');
   const emailGroup = document.getElementById('emailGroup');
   const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+  const consentGroup = document.getElementById('consentGroup');
   const previewCoverContainer = document.getElementById('previewCoverContainer');
   const previewTitle = document.getElementById('previewTitle');
   const previewAuthor = document.getElementById('previewAuthor');
@@ -376,7 +449,7 @@
   const previewActionContainer = document.getElementById('previewActionContainer');
   const searchInput = document.getElementById('searchInput');
   const toast = document.getElementById('toast');
- 
+
   function escapeHtml(value) {
     return String(value == null ? '' : value)
       .replace(/&/g, '&amp;')
@@ -385,12 +458,15 @@
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
   }
- 
+
   if (!localStorage.getItem(COOKIE_SEEN_KEY)) { setTimeout(() => cookieModalBackdrop.classList.add('active'), 300); }
   document.getElementById('acceptCookieNoticeBtn').onclick = () => { localStorage.setItem(COOKIE_SEEN_KEY, 'true'); cookieModalBackdrop.classList.remove('active'); };
- 
+  document.getElementById('cookieToPrivacy').onclick = () => { cookieModalBackdrop.classList.remove('active'); openModal(datenschutzModal); };
+  document.getElementById('consentPrivacyLink').onclick = () => openModal(datenschutzModal);
+  document.getElementById('consentTermsLink').onclick = () => openModal(nutzungsbedingungenModal);
+
   function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
- 
+
   // "text/plain" verhindert den CORS-Preflight, den Apps Script nicht beantwortet.
   async function callDriveBackend(payload) {
     try {
@@ -405,14 +481,14 @@
       return { success: false, error: "Netzwerkfehler." };
     }
   }
- 
+
   // Bücher werden per GET geladen (genau wie im Admin-Panel).
   async function loadInitialData() {
     loadError = null;
     try {
       const response = await fetch(GOOGLE_SCRIPT_URL);
       const res = await response.json();
- 
+
       if (res && res.success && Array.isArray(res.books)) {
         books = res.books
           .filter(b => b && (String(b.id || '').trim() !== '' || String(b.title || '').trim() !== ''))
@@ -438,7 +514,7 @@
     updateHeroSection();
     renderBooks();
   }
- 
+
   function updateHeroSection() {
     const heroFeaturedBtn = document.getElementById('heroFeaturedBtn');
     if (books.length === 0) {
@@ -454,7 +530,7 @@
     document.getElementById('heroDesc').textContent = featuredBook.description;
     document.getElementById('heroCoverImg').src = featuredBook.cover;
   }
- 
+
   function renderAvatar(containerEl, user) {
     if (!containerEl) return;
     const name = (user && (user.username || user.name)) || 'User';
@@ -462,7 +538,7 @@
     if (avatarUrl) { containerEl.innerHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}">`; }
     else { containerEl.textContent = name.substring(0, 2).toUpperCase(); }
   }
- 
+
   function updateAuthUI() {
     if (currentUser) {
       openAuthBtn.style.display = 'none';
@@ -475,7 +551,7 @@
     }
     renderBooks();
   }
- 
+
   function renderBooks() {
     bookGrid.innerHTML = '';
     if (books.length === 0) {
@@ -517,11 +593,11 @@
       bookGrid.appendChild(card);
     });
   }
- 
+
   document.getElementById('heroFeaturedBtn').onclick = () => { if (featuredBook) handleBookClick(featuredBook); };
   document.getElementById('featuredCoverTrigger').onclick = () => { if (featuredBook) handleBookClick(featuredBook); };
   searchInput.addEventListener('input', (e) => { currentSearch = e.target.value.toLowerCase().trim(); renderBooks(); });
- 
+
   function handleBookClick(book) {
     if (book.status === 'Z' && !getUnlockedMap()[book.id]) {
       activeBookForPassword = book;
@@ -532,7 +608,7 @@
       openPreview(book);
     }
   }
- 
+
   // Schlüssel beim Server einlösen (Einwegschlüssel)
   passwordForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -542,12 +618,12 @@
     passwordError.style.display = 'none';
     submitBtn.disabled = true;
     submitBtn.textContent = 'Prüfe...';
- 
+
     const res = await callDriveBackend({ action: 'redeemKey', bookId: book.id, key: secretPasswordInput.value.trim() });
- 
+
     submitBtn.disabled = false;
     submitBtn.textContent = 'Freischalten';
- 
+
     if (res && res.success) {
       saveUnlocked(book.id, res.readerPage || '');
       book.readerPage = res.readerPage || '';
@@ -560,7 +636,7 @@
       passwordError.style.display = 'block';
     }
   });
- 
+
   function openPreview(book) {
     previewTitle.textContent = book.title;
     previewAuthor.textContent = `von ${book.author}`;
@@ -572,15 +648,15 @@
       const btn = document.createElement('button'); btn.className = 'btn btn-secondary'; btn.style.width = '100%'; btn.textContent = 'Bald verfügbar';
       previewActionContainer.appendChild(btn);
     } else if (book.status === 'J') {
-      const btn = document.createElement('a'); btn.className = 'btn btn-success'; btn.style.width = '100%'; btn.textContent = 'Kaufen'; btn.href = book.buyUrl || book.readerPage || '#'; btn.target = '_blank';
+      const btn = document.createElement('a'); btn.className = 'btn btn-success'; btn.style.width = '100%'; btn.textContent = 'Kaufen'; btn.href = book.buyUrl || book.readerPage || '#'; btn.target = '_blank'; btn.rel = 'noopener noreferrer';
       previewActionContainer.appendChild(btn);
     } else {
-      const btn = document.createElement('a'); btn.className = 'btn btn-primary'; btn.style.width = '100%'; btn.textContent = 'Buch lesen'; btn.href = book.readerPage || '#'; btn.target = '_blank';
+      const btn = document.createElement('a'); btn.className = 'btn btn-primary'; btn.style.width = '100%'; btn.textContent = 'Buch lesen'; btn.href = book.readerPage || '#'; btn.target = '_blank'; btn.rel = 'noopener noreferrer';
       previewActionContainer.appendChild(btn);
     }
     openModal(previewModal);
   }
- 
+
   function openModal(modal) { if (modal) modal.classList.add('active'); }
   function closeModal(modal) { if (modal) modal.classList.remove('active'); }
   document.querySelectorAll('.close-modal, [data-close]').forEach(btn => { btn.onclick = () => closeModal(document.getElementById(btn.getAttribute('data-close'))); });
@@ -588,7 +664,7 @@
   document.getElementById('openDatenschutzBtn').onclick = () => openModal(datenschutzModal);
   document.getElementById('openNutzungsbedingungenBtn').onclick = () => openModal(nutzungsbedingungenModal);
   openAuthBtn.onclick = () => { authError.style.display = 'none'; openModal(authModal); };
- 
+
   profileTrigger.onclick = () => {
     document.getElementById('modalProfileName').textContent = currentUser.username;
     document.getElementById('infoUsername').textContent = currentUser.username;
@@ -596,7 +672,7 @@
     renderAvatar(document.getElementById('modalAvatarInner'), currentUser);
     openModal(profileModal);
   };
- 
+
   document.getElementById('modalProfileAvatar').onclick = () => document.getElementById('directAvatarInput').click();
   document.getElementById('directAvatarInput').addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -611,12 +687,12 @@
       reader.readAsDataURL(e.target.files[0]);
     }
   });
- 
+
   document.getElementById('confirmLogoutBtn').onclick = () => {
     currentUser = null; localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(SESSION_KEY);
     closeModal(profileModal); updateAuthUI(); showToast('Abgemeldet');
   };
- 
+
   document.querySelectorAll('.auth-tab').forEach(tab => {
     tab.onclick = () => {
       document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -624,15 +700,15 @@
       authMode = tab.getAttribute('data-mode');
       if (authMode === 'register') {
         authModalTitle.textContent = 'Registrieren'; authSubmitBtn.textContent = 'Registrieren';
-        emailGroup.style.display = 'block'; confirmPasswordGroup.style.display = 'block'; document.getElementById('authEmail').required = true;
+        emailGroup.style.display = 'block'; confirmPasswordGroup.style.display = 'block'; consentGroup.style.display = 'block'; document.getElementById('authEmail').required = true;
       } else {
         authModalTitle.textContent = 'Anmelden'; authSubmitBtn.textContent = 'Anmelden';
-        emailGroup.style.display = 'none'; confirmPasswordGroup.style.display = 'none'; document.getElementById('authEmail').required = false;
+        emailGroup.style.display = 'none'; confirmPasswordGroup.style.display = 'none'; consentGroup.style.display = 'none'; document.getElementById('authEmail').required = false;
       }
       authError.style.display = 'none';
     };
   });
- 
+
   authForm.onsubmit = async (e) => {
     e.preventDefault();
     const username = document.getElementById('authUsername').value.trim();
@@ -643,6 +719,7 @@
       if (authMode === 'register') {
         const email = document.getElementById('authEmail').value.trim();
         const p2 = document.getElementById('authPasswordConfirm').value;
+        if (!document.getElementById('authConsent').checked) { authError.textContent = 'Bitte akzeptiere Datenschutzerklärung und Nutzungsbedingungen.'; authError.style.display = 'block'; authSubmitBtn.disabled = false; return; }
         if (password !== p2) { authError.textContent = 'Passwörter stimmen nicht überein'; authError.style.display = 'block'; authSubmitBtn.disabled = false; return; }
         const res = await callDriveBackend({ action: 'register', username, email, password });
         if (!res.success) { authError.textContent = res.error || 'Fehler'; authError.style.display = 'block'; authSubmitBtn.disabled = false; return; }
@@ -657,10 +734,9 @@
     } catch (err) { authError.textContent = 'Netzwerkfehler'; authError.style.display = 'block'; }
     authSubmitBtn.disabled = false;
   };
- 
+
   updateAuthUI();
   loadInitialData().then(() => setTimeout(() => document.body.classList.add('loaded'), 1000));
 </script>
 </body>
 </html>
- 
