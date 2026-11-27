@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Black Comedy2 – Blackbox Bücher</title>
+<link rel="icon" type="image/jpeg" href="Bilder_und_Medien/Blackbox-Buecher-Icon.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+<style>
+  :root {
+    --bg-main: #F5F5F7;
+    --bg-reader: #FFFFFF;
+    --text-main: #1D1D1F;
+    --text-muted: #86868B;
+    --btn-bg: rgba(0, 0, 0, 0.05);
+    --btn-hover: rgba(0, 0, 0, 0.1);
+    --border: rgba(0, 0, 0, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-main: #000000;
+      --bg-reader: #1C1C1E;
+      --text-main: #F5F5F7;
+      --text-muted: #8E8E93;
+      --btn-bg: rgba(255, 255, 255, 0.1);
+      --btn-hover: rgba(255, 255, 255, 0.2);
+      --border: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  
+  header {
+    background: var(--bg-reader);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .back-btn {
+    background: var(--btn-bg);
+    color: var(--text-main);
+    border: none;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .back-btn:hover {
+    background: var(--btn-hover);
+  }
+
+  .book-title {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+  }
+
+  .tool-btn {
+    background: var(--btn-bg);
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: background 0.2s;
+  }
+
+  .tool-btn:hover {
+    background: var(--btn-hover);
+  }
+
+  /* Vollflächiger, randloser Reader-Bereich */
+  main {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: var(--bg-reader);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #viewer {
+    width: 100%;
+    height: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  #loadingScreen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-reader);
+    font-size: 13px;
+    color: var(--text-muted);
+    z-index: 20;
+  }
+</style>
+</head>
+<body oncontextmenu="return false;">
+
+<header>
+  <div class="nav-left">
+    <a href="../../index.html" class="back-btn">←</a>
+    <span class="book-title">Black Comedy2</span>
+  </div>
+  <div>
+    <button class="tool-btn" id="printBtn" title="Gesamtes Buch drucken">Print</button>
+  </div>
+</header>
+
+<main>
+  <div id="loadingScreen">Öffne E-Book...</div>
+  <div id="viewer"></div>
+</main>
+
+<script>
+  const epubFileName = 'Black-Comedy-150-geile-Geschichten-Blackbox-Buecher-Mikroverlag.epub';
+  let currentBook = null;
+  let rendition = null;
+
+  // Tastatursteuerung für Pfeiltasten
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && ['s', 'p', 'c', 'u'].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+    }
+    if (e.key === 'ArrowLeft' && rendition) rendition.prev();
+    if (e.key === 'ArrowRight' && rendition) rendition.next();
+  });
+
+  async function initReader() {
+    const loadingScreen = document.getElementById('loadingScreen');
+    try {
+      const response = await fetch(epubFileName);
+      if (!response.ok) throw new Error('EPUB nicht gefunden.');
+
+      const buffer = await response.arrayBuffer();
+      currentBook = ePub(buffer);
+
+      // Moderne, flüssige Pagination (wie Google/Apple Books)
+      rendition = currentBook.renderTo("viewer", {
+        width: "100%",
+        height: "100%",
+        spread: "auto",
+        flow: "paginated"
+      });
+
+      // Styling direkt in den EPUB-Container injizieren für perfektes HTML5-Rendering
+      rendition.themes.default({
+        "body": {
+          "padding": "40px !important",
+          "font-family": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, serif !important",
+          "color": "var(--text-main) !important",
+          "line-height": "1.7 !important",
+          "font-size": "16px !important"
+        },
+        "p": {
+          "margin-bottom": "1.2em !important",
+          "text-align": "justify !important"
+        },
+        "img": {
+          "max-width": "100% !important",
+          "height": "auto !important",
+          "border-radius": "8px !important"
+        }
+      });
+
+      // Kopierschutz & Touch-Swipe-Gesten im Reader aktivieren
+      rendition.hooks.content.register(contents => {
+        const doc = contents.document;
+        doc.addEventListener('contextmenu', ev => ev.preventDefault());
+        
+        let startX = 0;
+        doc.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+        }, { passive: true });
+
+        doc.addEventListener('touchend', (e) => {
+          let endX = e.changedTouches[0].clientX;
+          let diff = startX - endX;
+          if (Math.abs(diff) > 40) {
+            if (diff > 0) {
+              rendition.next();
+            } else {
+              rendition.prev();
+            }
+          }
+        }, { passive: true });
+      });
+
+      await rendition.display();
+      loadingScreen.style.display = 'none';
+
+    } catch (err) {
+      console.error(err);
+      loadingScreen.textContent = 'Ladefehler: Bitte über einen Webserver (GitHub Pages) aufrufen.';
+    }
+  }
+
+
+  document.getElementById('printBtn').addEventListener('click', async () => {
+    if (!currentBook) return;
+
+    try {
+      await currentBook.ready;
+      const spineItems = currentBook.spine.spineItems;
+      let fullHtmlContent = '';
+
+      for (const item of spineItems) {
+        const doc = await item.load(currentBook.load.bind(currentBook));
+        const bodyContent = doc.querySelector('body') ? doc.querySelector('body').innerHTML : '';
+        fullHtmlContent += `<section style="page-break-after: always; margin-bottom: 20mm;">${bodyContent}</section>`;
+        item.unload();
+      }
+
+      const printFrame = document.createElement('iframe');
+      printFrame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+      document.body.appendChild(printFrame);
+
+      const frameDoc = printFrame.contentWindow.document;
+      frameDoc.open();
+      frameDoc.write(`
+        <!DOCTYPE html>
+        <html lang="de">
+        <head>
+          <meta charset="UTF-8">
+          <title>Druckansicht</title>
+          <style>
+            @page { margin: 20mm; }
+            body { font-family: Georgia, serif; font-size: 12pt; line-height: 1.6; color: #000; }
+            img { max-width: 100%; height: auto; }
+          </style>
+        </head>
+        <body>${fullHtmlContent}</body>
+        </html>
+      `);
+      frameDoc.close();
+
+      setTimeout(() => {
+        printFrame.contentWindow.focus();
+        printFrame.contentWindow.print();
+        setTimeout(() => document.body.removeChild(printFrame), 2000);
+      }, 500);
+
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  initReader();
+</script>
+</body>
+</html>
