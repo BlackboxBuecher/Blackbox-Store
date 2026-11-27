@@ -301,7 +301,7 @@
       <h2>Buch freischalten</h2>
       <button class="close-modal" data-close="passwordModal">&times;</button>
     </div>
-    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Gib deinen Freischaltschlüssel ein. Jeder Schlüssel funktioniert nur ein einziges Mal.</p>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Gib deinen Freischalt Code hier ein.</p>
     <form id="passwordForm">
       <div id="passwordError" class="error-msg"></div>
       <div class="form-group">
@@ -336,7 +336,7 @@
  
   let books = [];
   let loadError = null;
-  let categoryLabels = { N: 'Kostenlos', J: 'Kostenpflichtig', P: 'In Entwicklung', Z: 'Geschützt' };
+  let categoryLabels = { N: 'Kostenlos', J: 'Kostenpflichtig', P: 'In Entwicklung', Z: 'Freischalt Code' };
   let featuredBook = null;
   let currentSearch = '';
   let currentUser = null;
