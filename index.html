@@ -114,6 +114,8 @@
   .tag-soon { background: var(--bg-elevated); color: var(--text-secondary); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
   .tag-buy { background: rgba(10, 132, 255, 0.14); color: var(--accent-primary); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
   .tag-secret { background: rgba(255, 159, 10, 0.14); color: #FF9F0A; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+  .grid-message { grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0; }
+  .grid-message.error { color: var(--danger-color); }
   .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.52); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 300; visibility: hidden; opacity: 0; transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s; overflow-y: auto; }
   .modal-backdrop.active { visibility: visible; opacity: 1; }
   .modal { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); width: 100%; max-width: 480px; max-height: calc(100vh - 32px); overflow-y: auto; padding: 28px; box-shadow: var(--shadow-md); transform: scale(0.95) translateY(12px); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s; opacity: 0; }
@@ -142,6 +144,7 @@
   .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
   .form-group input { width: 100%; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 14px; outline: none; transition: border-color 0.2s; }
   .form-group input:focus { border-color: var(--accent-primary); }
+  .form-group input.key-input { text-transform: uppercase; letter-spacing: 0.08em; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: center; }
   .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-primary); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 18px; border: 1px solid var(--border-subtle); }
   .auth-tab { background: transparent; border: none; color: var(--text-secondary); padding: 7px; font-size: 13px; font-weight: 600; border-radius: 7px; cursor: pointer; transition: var(--transition-smooth); }
   .auth-tab.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: var(--shadow-sm); }
@@ -159,7 +162,7 @@
   <div class="nav-container">
     <a href="#" class="brand">
       <img src="Bilder_und_Medien/Blackbox-Buecher-Icon.png" alt="Logo" class="brand-logo">
-      <div class="brand-name">Blackbox Bücher</div> 
+      <div class="brand-name">Blackbox Bücher</div>
     </a>
     <div class="nav-actions">
       <button id="profileTrigger" class="profile-trigger" style="display: none;">
@@ -209,6 +212,7 @@
     </div>
   </footer>
 </div>
+ 
 <div id="cookieModalBackdrop" class="modal-backdrop" style="z-index: 350;">
   <div class="modal" style="max-width: 500px;">
     <div class="modal-header"><h2>Datenschutz</h2></div>
@@ -216,6 +220,7 @@
     <button id="acceptCookieNoticeBtn" class="btn btn-primary" style="width: 100%;">Verstanden</button>
   </div>
 </div>
+ 
 <div id="authModal" class="modal-backdrop">
   <div class="modal">
     <div class="modal-header">
@@ -248,6 +253,7 @@
     </form>
   </div>
 </div>
+ 
 <div id="profileModal" class="modal-backdrop">
   <div class="modal" style="max-width: 420px;">
     <div class="modal-header">
@@ -268,6 +274,7 @@
     <button id="confirmLogoutBtn" class="btn btn-secondary" style="width: 100%; background: rgba(255, 59, 48, 0.12); color: var(--danger-color); border: none;">Abmelden</button>
   </div>
 </div>
+ 
 <div id="previewModal" class="modal-backdrop">
   <div class="modal modal-large">
     <div id="previewCoverContainer" style="border-radius: 6px 14px 14px 6px; min-height: 340px; position:relative; overflow:hidden; background:var(--bg-elevated); box-shadow: var(--shadow-book);"></div>
@@ -287,36 +294,58 @@
     </div>
   </div>
 </div>
+ 
 <div id="passwordModal" class="modal-backdrop">
-  <div class="modal" style="max-width: 360px;">
+  <div class="modal" style="max-width: 380px;">
     <div class="modal-header">
-      <h2>Geschützt</h2>
+      <h2>Buch freischalten</h2>
       <button class="close-modal" data-close="passwordModal">&times;</button>
     </div>
+    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Gib deinen Freischaltschlüssel ein. Jeder Schlüssel funktioniert nur ein einziges Mal.</p>
     <form id="passwordForm">
       <div id="passwordError" class="error-msg"></div>
       <div class="form-group">
-        <input type="password" id="secretPasswordInput" required placeholder="Passwort">
+        <input type="text" id="secretPasswordInput" class="key-input" required placeholder="XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
       </div>
-      <button type="submit" class="btn btn-primary" style="width: 100%;">Freigeben</button>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Freischalten</button>
     </form>
   </div>
 </div>
+ 
 <div id="impressumModal" class="modal-backdrop"><div class="modal modal-legal"><div class="modal-header"><h2>Impressum</h2><button class="close-modal" data-close="impressumModal">&times;</button></div><p>Matteo Neumann <br> blackboxbuecher@gmail.com <br> Adlerhorst 5a <br> 21376 Salzhausen</p></div></div>
 <div id="datenschutzModal" class="modal-backdrop"><div class="modal modal-legal"><div class="modal-header"><h2>Datenschutz</h2><button class="close-modal" data-close="datenschutzModal">&times;</button></div><p>Datenschutzerklärung...</p></div></div>
 <div id="nutzungsbedingungenModal" class="modal-backdrop"><div class="modal modal-legal"><div class="modal-header"><h2>Nutzungsbedingungen</h2><button class="close-modal" data-close="nutzungsbedingungenModal">&times;</button></div><p>Bedingungen...</p></div></div>
+ 
 <div id="toast" class="toast"></div>
+ 
 <script>
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4EDtJo07Vx-_wNgjuhVxsAqKg8VXXs2SP-TFiaMDiN4GY0OqnED_nV8uV6eVWGWb8/exec";
   const SESSION_KEY = 'bb_drive_session_v15';
   const COOKIE_SEEN_KEY = 'bb_cookie_notice_seen';
+  const UNLOCKED_KEY = 'bb_unlocked_books';
+ 
+  // Freigeschaltete Bücher werden auf diesem Gerät im Browser gemerkt.
+  function getUnlockedMap() {
+    try { return JSON.parse(localStorage.getItem(UNLOCKED_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function saveUnlocked(bookId, readerPage) {
+    const map = getUnlockedMap();
+    map[bookId] = { readerPage: readerPage };
+    localStorage.setItem(UNLOCKED_KEY, JSON.stringify(map));
+  }
+ 
   let books = [];
+  let loadError = null;
   let categoryLabels = { N: 'Kostenlos', J: 'Kostenpflichtig', P: 'In Entwicklung', Z: 'Geschützt' };
   let featuredBook = null;
   let currentSearch = '';
-  let currentUser = JSON.parse(localStorage.getItem(SESSION_KEY)) || JSON.parse(sessionStorage.getItem(SESSION_KEY)) || null;
+  let currentUser = null;
+  try {
+    currentUser = JSON.parse(localStorage.getItem(SESSION_KEY)) || JSON.parse(sessionStorage.getItem(SESSION_KEY)) || null;
+  } catch (e) { currentUser = null; }
   let authMode = 'login';
   let activeBookForPassword = null;
+ 
   const bookGrid = document.getElementById('bookGrid');
   const openAuthBtn = document.getElementById('openAuthBtn');
   const profileTrigger = document.getElementById('profileTrigger');
@@ -347,41 +376,75 @@
   const previewActionContainer = document.getElementById('previewActionContainer');
   const searchInput = document.getElementById('searchInput');
   const toast = document.getElementById('toast');
+ 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+ 
   if (!localStorage.getItem(COOKIE_SEEN_KEY)) { setTimeout(() => cookieModalBackdrop.classList.add('active'), 300); }
   document.getElementById('acceptCookieNoticeBtn').onclick = () => { localStorage.setItem(COOKIE_SEEN_KEY, 'true'); cookieModalBackdrop.classList.remove('active'); };
+ 
   function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+ 
+  // "text/plain" verhindert den CORS-Preflight, den Apps Script nicht beantwortet.
   async function callDriveBackend(payload) {
     try {
-      const response = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
       return await response.json();
     } catch (err) {
+      console.error('Backend-Fehler:', err);
       return { success: false, error: "Netzwerkfehler." };
     }
   }
+ 
+  // Bücher werden per GET geladen (genau wie im Admin-Panel).
   async function loadInitialData() {
+    loadError = null;
     try {
-      let res = await callDriveBackend({ action: 'getAppData' });
-      if (!res || !res.success || (!res.books && !Array.isArray(res))) { res = await callDriveBackend({ action: 'getBooks' }); }
-      let rawBooks = [];
-      if (res) {
-        if (Array.isArray(res)) rawBooks = res;
-        else if (res.books && Array.isArray(res.books)) rawBooks = res.books;
-        else if (res.data && Array.isArray(res.data)) rawBooks = res.data;
+      const response = await fetch(GOOGLE_SCRIPT_URL);
+      const res = await response.json();
+ 
+      if (res && res.success && Array.isArray(res.books)) {
+        books = res.books
+          .filter(b => b && (String(b.id || '').trim() !== '' || String(b.title || '').trim() !== ''))
+          .map(b => {
+            const status = String(b.status || 'N').trim().toUpperCase();
+            const unlocked = getUnlockedMap()[b.id];
+            return {
+              ...b,
+              status,
+              readerPage: (status === 'Z' && unlocked) ? unlocked.readerPage : b.readerPage,
+              pages: b.pages || 50,
+              ageRating: b.ageRating || 'Ab 16 Jahren'
+            };
+          });
         if (res.settings) categoryLabels = { ...categoryLabels, ...res.settings };
+      } else {
+        loadError = (res && res.error) ? res.error : 'Unerwartete Antwort der Datenbank.';
       }
-      if (rawBooks.length > 0) {
-        books = rawBooks.map(b => ({ ...b, pages: b.pages || 50, ageRating: b.ageRating || 'Ab 16 Jahren' }));
-      }
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error('Ladefehler:', err);
+      loadError = 'Verbindung zur Datenbank fehlgeschlagen.';
+    }
     updateHeroSection();
     renderBooks();
   }
+ 
   function updateHeroSection() {
     const heroFeaturedBtn = document.getElementById('heroFeaturedBtn');
     if (books.length === 0) {
-      document.getElementById('heroTitle').textContent = "Keine eBooks";
-      document.getElementById('heroDesc').textContent = "Füge über die Verwaltung eBooks hinzu.";
-      document.getElementById('heroCoverImg').src = "";
+      document.getElementById('heroTitle').textContent = loadError ? "Ladefehler" : "Keine eBooks";
+      document.getElementById('heroDesc').textContent = loadError ? loadError : "Füge über die Verwaltung eBooks hinzu.";
+      document.getElementById('heroCoverImg').removeAttribute('src');
       if (heroFeaturedBtn) heroFeaturedBtn.style.display = 'none';
       return;
     }
@@ -391,13 +454,15 @@
     document.getElementById('heroDesc').textContent = featuredBook.description;
     document.getElementById('heroCoverImg').src = featuredBook.cover;
   }
+ 
   function renderAvatar(containerEl, user) {
     if (!containerEl) return;
     const name = (user && (user.username || user.name)) || 'User';
     const avatarUrl = (user && user.avatar) || '';
-    if (avatarUrl) { containerEl.innerHTML = `<img src="${avatarUrl}" alt="${name}">`; } 
+    if (avatarUrl) { containerEl.innerHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}">`; }
     else { containerEl.textContent = name.substring(0, 2).toUpperCase(); }
   }
+ 
   function updateAuthUI() {
     if (currentUser) {
       openAuthBtn.style.display = 'none';
@@ -410,17 +475,25 @@
     }
     renderBooks();
   }
+ 
   function renderBooks() {
     bookGrid.innerHTML = '';
     if (books.length === 0) {
-      bookGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0;">Keine eBooks in der Datenbank.</p>';
+      if (loadError) {
+        bookGrid.innerHTML = '<p class="grid-message error">Bücher konnten nicht geladen werden: ' + escapeHtml(loadError) + '</p>';
+      } else {
+        bookGrid.innerHTML = '<p class="grid-message">Keine eBooks in der Datenbank.</p>';
+      }
       return;
     }
-    const purchases = (currentUser && currentUser.purchases) || [];
+    const purchases = Array.isArray(currentUser && currentUser.purchases) ? currentUser.purchases : [];
     const progressMap = (currentUser && currentUser.progress) || {};
-    const filteredBooks = books.filter(book => (book.title || '').toLowerCase().includes(currentSearch) || (book.genre || '').toLowerCase().includes(currentSearch));
+    const filteredBooks = books.filter(book =>
+      String(book.title || '').toLowerCase().includes(currentSearch) ||
+      String(book.genre || '').toLowerCase().includes(currentSearch)
+    );
     if (filteredBooks.length === 0) {
-      bookGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 40px 0;">Keine Treffer.</p>';
+      bookGrid.innerHTML = '<p class="grid-message">Keine Treffer.</p>';
       return;
     }
     filteredBooks.forEach(book => {
@@ -428,36 +501,72 @@
       card.className = 'book-card';
       const progress = progressMap[book.id] || 0;
       const isOwned = purchases.includes(book.id);
-      const progressBadge = progress > 0 ? `<div class="reading-progress-badge">${progress}% gelesen</div>` : '';
+      const progressBadge = progress > 0 ? `<div class="reading-progress-badge">${escapeHtml(progress)}% gelesen</div>` : '';
       let statusTagHtml = '';
-      const labelText = categoryLabels[book.status] || book.status;
+      const labelText = escapeHtml(categoryLabels[book.status] || book.status);
       if (book.status === 'N') { statusTagHtml = isOwned ? `<span class="tag-owned">Freigeschaltet</span>` : `<span class="tag-free">${labelText}</span>`; }
       else if (book.status === 'P') { statusTagHtml = `<span class="tag-soon">${labelText}</span>`; }
-      else if (book.status === 'J') { statusTagHtml = `<span class="tag-buy">${book.price || labelText}</span>`; }
-      else if (book.status === 'Z') { statusTagHtml = `<span class="tag-secret">${labelText}</span>`; }
-      card.innerHTML = `<div class="book-cover-wrapper"><div class="book-cover">${progressBadge}<img src="${book.cover}" alt=""></div></div><div class="book-body"><div class="book-meta">${book.genre}</div><h3 class="book-title">${book.title}</h3><div class="book-author">${book.author}</div><div class="book-footer">${statusTagHtml}<span class="book-action-hint">Details →</span></div></div>`;
+      else if (book.status === 'J') { statusTagHtml = `<span class="tag-buy">${escapeHtml(book.price) || labelText}</span>`; }
+      else if (book.status === 'Z') { statusTagHtml = getUnlockedMap()[book.id] ? `<span class="tag-owned">Freigeschaltet</span>` : `<span class="tag-secret">${labelText}</span>`; }
+      else { statusTagHtml = `<span class="tag-soon">${labelText}</span>`; }
+      card.innerHTML =
+        `<div class="book-cover-wrapper"><div class="book-cover">${progressBadge}<img src="${escapeHtml(book.cover)}" alt=""></div></div>` +
+        `<div class="book-body"><div class="book-meta">${escapeHtml(book.genre)}</div><h3 class="book-title">${escapeHtml(book.title)}</h3><div class="book-author">${escapeHtml(book.author)}</div>` +
+        `<div class="book-footer">${statusTagHtml}<span class="book-action-hint">Details →</span></div></div>`;
       card.onclick = () => handleBookClick(book);
       bookGrid.appendChild(card);
     });
   }
+ 
   document.getElementById('heroFeaturedBtn').onclick = () => { if (featuredBook) handleBookClick(featuredBook); };
   document.getElementById('featuredCoverTrigger').onclick = () => { if (featuredBook) handleBookClick(featuredBook); };
   searchInput.addEventListener('input', (e) => { currentSearch = e.target.value.toLowerCase().trim(); renderBooks(); });
+ 
   function handleBookClick(book) {
-    if (book.status === 'Z') { activeBookForPassword = book; secretPasswordInput.value = ''; passwordError.style.display = 'none'; openModal(passwordModal); }
-    else { openPreview(book); }
+    if (book.status === 'Z' && !getUnlockedMap()[book.id]) {
+      activeBookForPassword = book;
+      secretPasswordInput.value = '';
+      passwordError.style.display = 'none';
+      openModal(passwordModal);
+    } else {
+      openPreview(book);
+    }
   }
-  passwordForm.addEventListener('submit', (e) => {
+ 
+  // Schlüssel beim Server einlösen (Einwegschlüssel)
+  passwordForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (secretPasswordInput.value === '2255') { closeModal(passwordModal); showToast('Zugriff gewährt'); openPreview(activeBookForPassword); }
-    else { passwordError.textContent = 'Falsches Passwort'; passwordError.style.display = 'block'; }
+    const book = activeBookForPassword;
+    if (!book) return;
+    const submitBtn = passwordForm.querySelector('button[type="submit"]');
+    passwordError.style.display = 'none';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Prüfe...';
+ 
+    const res = await callDriveBackend({ action: 'redeemKey', bookId: book.id, key: secretPasswordInput.value.trim() });
+ 
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Freischalten';
+ 
+    if (res && res.success) {
+      saveUnlocked(book.id, res.readerPage || '');
+      book.readerPage = res.readerPage || '';
+      closeModal(passwordModal);
+      renderBooks();
+      showToast('Buch freigeschaltet');
+      openPreview(book);
+    } else {
+      passwordError.textContent = (res && res.error) || 'Schlüssel ungültig.';
+      passwordError.style.display = 'block';
+    }
   });
+ 
   function openPreview(book) {
     previewTitle.textContent = book.title;
     previewAuthor.textContent = `von ${book.author}`;
     previewGenre.textContent = book.genre;
     previewDesc.textContent = book.description;
-    previewCoverContainer.innerHTML = `<img src="${book.cover}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" alt="">`;
+    previewCoverContainer.innerHTML = `<img src="${escapeHtml(book.cover)}" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" alt="">`;
     previewActionContainer.innerHTML = '';
     if (book.status === 'P') {
       const btn = document.createElement('button'); btn.className = 'btn btn-secondary'; btn.style.width = '100%'; btn.textContent = 'Bald verfügbar';
@@ -466,11 +575,12 @@
       const btn = document.createElement('a'); btn.className = 'btn btn-success'; btn.style.width = '100%'; btn.textContent = 'Kaufen'; btn.href = book.buyUrl || book.readerPage || '#'; btn.target = '_blank';
       previewActionContainer.appendChild(btn);
     } else {
-      const btn = document.createElement('a'); btn.className = 'btn btn-primary'; btn.style.width = '100%'; btn.textContent = 'Buch lesen'; btn.href = book.readerPage; btn.target = '_blank';
+      const btn = document.createElement('a'); btn.className = 'btn btn-primary'; btn.style.width = '100%'; btn.textContent = 'Buch lesen'; btn.href = book.readerPage || '#'; btn.target = '_blank';
       previewActionContainer.appendChild(btn);
     }
     openModal(previewModal);
   }
+ 
   function openModal(modal) { if (modal) modal.classList.add('active'); }
   function closeModal(modal) { if (modal) modal.classList.remove('active'); }
   document.querySelectorAll('.close-modal, [data-close]').forEach(btn => { btn.onclick = () => closeModal(document.getElementById(btn.getAttribute('data-close'))); });
@@ -478,6 +588,7 @@
   document.getElementById('openDatenschutzBtn').onclick = () => openModal(datenschutzModal);
   document.getElementById('openNutzungsbedingungenBtn').onclick = () => openModal(nutzungsbedingungenModal);
   openAuthBtn.onclick = () => { authError.style.display = 'none'; openModal(authModal); };
+ 
   profileTrigger.onclick = () => {
     document.getElementById('modalProfileName').textContent = currentUser.username;
     document.getElementById('infoUsername').textContent = currentUser.username;
@@ -485,6 +596,7 @@
     renderAvatar(document.getElementById('modalAvatarInner'), currentUser);
     openModal(profileModal);
   };
+ 
   document.getElementById('modalProfileAvatar').onclick = () => document.getElementById('directAvatarInput').click();
   document.getElementById('directAvatarInput').addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -499,10 +611,12 @@
       reader.readAsDataURL(e.target.files[0]);
     }
   });
+ 
   document.getElementById('confirmLogoutBtn').onclick = () => {
     currentUser = null; localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(SESSION_KEY);
     closeModal(profileModal); updateAuthUI(); showToast('Abgemeldet');
   };
+ 
   document.querySelectorAll('.auth-tab').forEach(tab => {
     tab.onclick = () => {
       document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -518,6 +632,7 @@
       authError.style.display = 'none';
     };
   });
+ 
   authForm.onsubmit = async (e) => {
     e.preventDefault();
     const username = document.getElementById('authUsername').value.trim();
@@ -542,8 +657,10 @@
     } catch (err) { authError.textContent = 'Netzwerkfehler'; authError.style.display = 'block'; }
     authSubmitBtn.disabled = false;
   };
+ 
   updateAuthUI();
   loadInitialData().then(() => setTimeout(() => document.body.classList.add('loaded'), 1000));
 </script>
 </body>
 </html>
+ 
